@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="5dp">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true">
+
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="25dp"
+            app:srcCompat="@drawable/ic_input_add"
+            android:id="@+id/icon"
+            android:paddingTop="5dp"
+            android:visibility="gone"/>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="212dp"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:text="title"
+                android:textSize="16dp"
+                android:paddingLeft="15dp"
+                android:gravity="left|center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/title"
+                android:layout_weight="5"/>
+
+            <TextView
+                android:text="subtitle"
+                android:textSize="12dp"
+                android:textColor="@color/gray"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="15dp"
+                android:gravity="left|top"
+                android:id="@+id/subtitle"
+                android:layout_weight="5"/>
+
+        </LinearLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
+                app:srcCompat="@drawable/ic_call"
+                android:clickable="true"
+                android:paddingRight="10dp"
+                android:layout_gravity="right|center"
+                android:id="@+id/call"
+                android:visibility="gone"/>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingRight="15dp">
+
+
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="right|center"
+                    android:visibility="gone"
+                    android:focusable="false"
+                    android:id="@+id/check_box"
+                    android:layout_alignParentEnd="true" />
+
+                <TextView
+                    android:text="TextView"
+                    android:textSize="14dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/type"
+                    android:gravity="right|center"
+                    android:layout_toLeftOf="@id/check_box"
+                    android:visibility="gone"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentStart="true" />
+
+            </RelativeLayout>
+
+        </FrameLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>

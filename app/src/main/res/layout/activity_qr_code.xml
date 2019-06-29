@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    tools:context=".QrCodeActivity">
+
+    <com.journeyapps.barcodescanner.DecoratedBarcodeView
+        android:id="@+id/decoratedBarcodeView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:zxing_framing_rect_height="250dp"
+        app:zxing_framing_rect_width="250dp"
+        app:zxing_preview_scaling_strategy="fitXY"
+        app:zxing_scanner_layout="@layout/layout_zxing"
+        app:zxing_use_texture_view="true" />
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:minHeight="?attr/actionBarSize"
+        android:background="#0000"
+        app:theme="@style/AppToolbarTheme"
+        app:popupTheme="@style/OverflowMenu"
+        app:titleTextAppearance="@style/Toolbar.TitleText"
+        android:weightSum="1">
+    </android.support.v7.widget.Toolbar>
+
+</FrameLayout>

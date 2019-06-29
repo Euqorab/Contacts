@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:minHeight="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        app:theme="@style/ToolBarTheme"
+        app:popupTheme="@style/OverflowMenu"
+        app:titleTextAppearance="@style/Toolbar.TitleText"
+        android:weightSum="1">
+    </android.support.v7.widget.Toolbar>
+
+    <ImageView
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        app:srcCompat="@drawable/head_default"
+        android:id="@+id/image_head"
+        android:layout_below="@+id/toolbar"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp" />
+
+    <ImageView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        app:srcCompat="@drawable/ic_person"
+        android:layout_below="@+id/image_head"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="20dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:id="@+id/image_name" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:hint="姓名"
+        android:ems="13"
+        android:layout_alignTop="@+id/image_name"
+        android:layout_toRightOf="@+id/image_name"
+        android:layout_marginLeft="20dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginRight="20dp"
+        android:id="@+id/edit_name" />
+
+
+    <ImageView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        app:srcCompat="@drawable/ic_phone"
+        android:layout_marginTop="15dp"
+        android:id="@+id/image_phone"
+        android:layout_below="@+id/edit_name"
+        android:layout_alignLeft="@+id/image_name"
+        android:layout_alignStart="@+id/image_name" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:hint="电话号码"
+        android:ems="13"
+        android:id="@+id/edit_phone"
+        android:layout_alignTop="@+id/image_phone"
+        android:layout_alignLeft="@+id/edit_name"
+        android:layout_alignStart="@+id/edit_name"
+        android:layout_marginEnd="20dp"
+        android:layout_marginRight="20dp" />
+
+
+    <ImageView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        app:srcCompat="@drawable/ic_email"
+        android:layout_marginTop="15dp"
+        android:id="@+id/image_email"
+        android:layout_marginEnd="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_below="@+id/image_phone"
+        android:layout_alignLeft="@+id/image_name"
+        android:layout_alignStart="@+id/image_name" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textEmailAddress"
+        android:hint="电子邮件"
+        android:ems="13"
+        android:id="@+id/edit_email"
+        android:layout_alignTop="@+id/image_email"
+        android:layout_alignLeft="@+id/edit_name"
+        android:layout_alignStart="@+id/edit_name"
+        android:layout_marginEnd="20dp"
+        android:layout_marginRight="20dp" />
+
+
+    <ImageView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        app:srcCompat="@drawable/ic_organization"
+        android:layout_marginTop="15dp"
+        android:id="@+id/image_organization"
+        android:layout_below="@+id/image_email"
+        android:layout_alignLeft="@+id/image_name"
+        android:layout_alignStart="@+id/image_name" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="text"
+        android:hint="工作单位"
+        android:ems="13"
+        android:id="@+id/edit_organization"
+        android:layout_alignTop="@+id/image_organization"
+        android:layout_alignLeft="@+id/edit_name"
+        android:layout_alignStart="@+id/edit_name"
+        android:layout_marginEnd="20dp"
+        android:layout_marginRight="20dp" />
+
+
+    <ImageView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        app:srcCompat="@drawable/ic_address"
+        android:layout_marginTop="15dp"
+        android:id="@+id/image_addr"
+        android:layout_below="@+id/image_organization"
+        android:layout_alignLeft="@+id/image_name"
+        android:layout_alignStart="@+id/image_name" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="text"
+        android:hint="地址"
+        android:ems="13"
+        android:id="@+id/edit_addr"
+        android:layout_alignTop="@+id/image_addr"
+        android:layout_alignLeft="@+id/edit_name"
+        android:layout_alignStart="@+id/edit_name"
+        android:layout_marginEnd="20dp"
+        android:layout_marginRight="20dp" />
+
+
+    <ImageView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        app:srcCompat="@drawable/ic_birthday"
+        android:layout_marginTop="15dp"
+        android:id="@+id/image_birthday"
+        android:layout_below="@+id/image_addr"
+        android:layout_alignLeft="@+id/image_name"
+        android:layout_alignStart="@+id/image_name" />
+
+    <TextView
+        android:text="生日"
+        android:textColor="@color/colorText"
+        android:textSize="18sp"
+        android:layout_width="60dp"
+        android:layout_height="40dp"
+        android:layout_alignTop="@+id/image_birthday"
+        android:layout_alignLeft="@+id/edit_addr"
+        android:layout_alignStart="@+id/edit_addr"
+        android:id="@+id/text_view"
+        android:gravity="left|center"
+        android:paddingLeft="4dp"
+        android:layout_below="@+id/image_addr"
+        android:layout_toStartOf="@+id/image_head" />
+
+    <TextView
+        android:hint="请选择日期"
+        android:textSize="18sp"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_alignTop="@+id/text_view"
+        android:layout_toEndOf="@+id/text_view"
+        android:layout_marginStart="20dp"
+        android:gravity="left|center"
+        android:autoLink="all"
+        android:layout_alignRight="@id/edit_addr"
+        android:id="@+id/text_date" />
+
+    <ImageView
+        android:layout_width="25dp"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ic_spin"
+        android:layout_alignTop="@+id/text_date"
+        android:layout_alignEnd="@+id/text_date"
+        android:id="@+id/imageView"
+        android:layout_alignBottom="@+id/text_date" />
+
+
+</RelativeLayout>

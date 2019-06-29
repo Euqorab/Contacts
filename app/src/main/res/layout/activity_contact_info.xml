@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/frameLayout">
+
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="180dp"
+            app:srcCompat="@drawable/bg_default"
+            android:id="@+id/image_bg"
+            android:scaleType="centerCrop"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
+        <TextView
+            android:text="Title1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center|bottom"
+            android:textSize="24dp"
+            android:paddingBottom="40dp"
+            android:textColor="@color/colorPrimary"
+            android:textStyle="bold"
+            android:id="@+id/title1" />
+        <TextView
+            android:text="Title2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center|bottom"
+            android:paddingBottom="15dp"
+            android:textSize="16dp"
+            android:textColor="@color/colorPrimary"
+            android:textStyle="normal"
+            android:id="@+id/title2" />
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:minHeight="?attr/actionBarSize"
+            android:background="#0000"
+            app:theme="@style/ToolBarTheme"
+            app:popupTheme="@style/OverflowMenu"
+            app:titleTextAppearance="@style/Toolbar.TitleText"
+            android:weightSum="1">
+        </android.support.v7.widget.Toolbar>
+
+    </FrameLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/frameLayout"
+        android:layout_centerHorizontal="true"
+        android:padding="5dp"
+        android:id="@+id/linearLayout">
+
+        <TextView
+            android:text="详情"
+            android:textColor="@color/green"
+            android:textStyle="bold"
+            android:id="@+id/detail"
+            android:padding="8dp"
+            android:textAlignment="center"
+            android:background="@drawable/bg_switch"
+            android:layout_width="75dp"
+            android:layout_height="32dp"
+            android:clickable="true"/>
+
+        <TextView
+            android:text="通话记录"
+            android:id="@+id/log"
+            android:padding="8dp"
+            android:textColor="@color/colorText"
+            android:textAlignment="center"
+            android:background="#0000"
+            android:layout_width="75dp"
+            android:layout_height="32dp"
+            android:clickable="true"/>
+
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/info_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/linearLayout" />
+
+
+</RelativeLayout>

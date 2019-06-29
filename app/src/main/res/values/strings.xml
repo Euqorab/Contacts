@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Contacts</string>
+    <string name="add_to_white_list">加入白名单</string>
+    <string name="remove_from_white_list">移出白名单</string>
+</resources>

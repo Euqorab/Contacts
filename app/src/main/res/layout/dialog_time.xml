@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TimePicker
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:timePickerMode="spinner"
+        android:calendarViewShown="false"
+        android:background="@null"
+        android:id="@+id/time_picker"></TimePicker>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:showDividers="middle"
+        android:paddingTop="15dp"
+        android:paddingBottom="15dp"
+        android:divider="@drawable/divider_vertical">
+
+        <TextView
+            android:text="取消"
+            android:textSize="18sp"
+            android:textColor="@color/green"
+            android:gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/cancel_action"
+            android:layout_weight="1" />
+
+        <TextView
+            android:text="确定"
+            android:textSize="18sp"
+            android:textColor="@color/colorAccent"
+            android:gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/confirm_action"
+            android:enabled="false"
+            android:layout_weight="1" />
+    </LinearLayout>
+</LinearLayout>

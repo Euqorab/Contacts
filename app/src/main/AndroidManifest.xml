@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.liumx.contacts">
+
+    <uses-permission android:name="android.permission.WRITE_CONTACTS"/>
+    <uses-permission android:name="android.permission.READ_CONTACTS"/>
+    <uses-permission android:name="android.permission.READ_CALL_LOG" />
+    <uses-permission android:name="android.permission.WRITE_CALL_LOG" />
+    <uses-permission android:name="android.permission.CALL_PHONE"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <application
+    android:allowBackup="true"
+    android:icon="@mipmap/ic_launcher"
+    android:label="@string/app_name"
+    android:supportsRtl="true"
+    android:theme="@style/AppToolbarTheme">
+
+        <activity android:name=".MainActivity"
+            android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".AddContactActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.Add" />
+                <category android:name="android.intent.category.LAUNCHER1" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".ContactInfoActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.ContactInfo" />
+                <category android:name="android.intent.category.LAUNCHER2" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".StatActivity"
+            android:launchMode="singleTop">
+            <intent-filter>
+                <action android:name="android.intent.action.Stat" />
+                <category android:name="android.intent.category.LAUNCHER3" />
+            </intent-filter>
+        </activity>
+
+        <receiver android:name=".PhoneStatReceiver">
+            <intent-filter android:priority="1000" >
+                <action android:name="android.intent.action.PHONE_STATE"/>
+            </intent-filter>
+        </receiver>
+
+        <activity android:name=".AddNoitificationActivity"
+            android:launchMode="singleTop">
+            <intent-filter>
+                <action android:name="android.intent.action.Notification" />
+                <category android:name="android.intent.category.LAUNCHER4" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".StatNotificationActivity"
+            android:launchMode="singleTop">
+            <intent-filter>
+                <action android:name="android.intent.action.StatNotification" />
+                <category android:name="android.intent.category.LAUNCHER5" />
+            </intent-filter>
+        </activity>
+
+        <service android:enabled="true" android:name=".PushNotification"
+            android:label="@string/app_name"
+            android:process="system">
+        </service>
+
+        <activity android:name=".PrefActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.Pref" />
+                <category android:name="android.intent.category.LAUNCHER6" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".MultiDeleteActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MultiDelete" />
+                <category android:name="android.intent.category.LAUNCHER7" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".QrCodeActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.QrCodeActivity" />
+                <category android:name="android.intent.category.LAUNCHER8" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".MyCard">
+            <intent-filter>
+                <action android:name="android.intent.action.MyCard" />
+                <category android:name="android.intent.category.LAUNCHER9" />
+            </intent-filter>
+        </activity>
+
+    </application>
+
+</manifest>

@@ -1,0 +1,17 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.example.liumx.granddictionary.MainActivity">
+    <item android:id="@+id/whitelist"
+        android:title="移出白名单"
+        app:showAsAction="never"/>
+    <item android:id="@+id/edit"
+        android:title="编辑"
+        app:showAsAction="never" />
+    <item android:id="@+id/notify"
+        android:title="添加提醒"
+        app:showAsAction="never" />
+    <item android:id="@+id/delete"
+        android:title="删除"
+        app:showAsAction="never" />
+</menu>

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:minHeight="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        app:theme="@style/ToolBarTheme"
+        app:popupTheme="@style/OverflowMenu"
+        app:titleTextAppearance="@style/Toolbar.TitleText"
+        android:weightSum="1"
+        android:visibility="gone">
+    </android.support.v7.widget.Toolbar>
+
+    <TextView
+        android:text="点击右上角编辑名片"
+        android:textSize="24dp"
+        android:textColor="@color/colorPrimary"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"/>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:id="@+id/relayout"
+        android:layout_below="@id/toolbar"
+        android:paddingBottom="50dp">
+
+        <FrameLayout android:layout_width="wrap_content"
+            android:layout_height="280dp"
+            android:id="@+id/cardTop">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="280dp"
+                app:srcCompat="@drawable/bg_default"
+                android:id="@+id/cardBackground"
+                android:scaleType="centerCrop"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="311dp" />
+
+            <TextView
+                android:text="name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center|bottom"
+                android:paddingBottom="40dp"
+                android:textSize="24sp"
+                android:textColor="@color/colorPrimary"
+                android:textStyle="normal"
+                android:id="@+id/cardName" />
+
+            <TextView
+                android:text="org"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center|bottom"
+                android:paddingBottom="15dp"
+                android:textSize="16dp"
+                android:textColor="@color/colorPrimary"
+                android:textStyle="normal"
+                android:id="@+id/cardOrg" />
+
+        </FrameLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/cardTop"
+            android:layout_centerHorizontal="true"
+            android:padding="5dp"
+            android:background="@android:color/white"
+            android:id="@+id/cardDown">
+
+            <ImageView
+                android:id="@+id/img_qrcode"
+                android:paddingTop="15dp"
+                android:layout_gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="二维码" />
+
+            <TextView
+                android:text="phone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center|bottom"
+                android:paddingTop="15dp"
+                android:paddingBottom="15dp"
+                android:textSize="16dp"
+                android:textColor="@color/gray"
+                android:textStyle="normal"
+                android:id="@+id/cardPhone" />
+
+            <TextView
+                android:text="email"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center|bottom"
+                android:paddingBottom="15dp"
+                android:textSize="16dp"
+                android:textColor="@color/gray"
+                android:textStyle="normal"
+                android:id="@+id/cardEmail" />
+
+        </LinearLayout>
+    </RelativeLayout>
+
+
+
+</RelativeLayout>
