@@ -72,15 +72,20 @@ public class PrefActivity extends AppCompatActivity {
                 dialogHandler.showTimePickerWindow(root, hour, min, new TimePicker.OnTimeChangedListener() {
                             @Override
                             public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
-                                Cursor cursor = db.query("pref", new String[]{"start_time", "end_time"},
-                                        null, null, null);
+                                Cursor cursor = db.query("pref", null, "setting_item IN (?,?)",
+                                        new String[]{"start_time", "end_time"}, "setting_item desc");
                                 if (cursor.moveToNext()) {
+                                    Log.i("============+++++", "===");
+                                    String start_time, end_time;
+                                    start_time = cursor.getString(1);
+                                    cursor.moveToNext();
+                                    end_time = cursor.getString(1);
                                     if (list.get(viewPosition).get("set_time") == "start_time") {
-                                        hour = Integer.valueOf(cursor.getString(0).substring(0, 2));
-                                        min = Integer.valueOf(cursor.getString(0).substring(3, 5));
+                                        hour = Integer.valueOf(start_time.substring(0, 2));
+                                        min = Integer.valueOf(start_time.substring(3, 5));
                                     } else {
-                                        hour = Integer.valueOf(cursor.getString(1).substring(0, 2));
-                                        min = Integer.valueOf(cursor.getString(1).substring(3, 5));
+                                        hour = Integer.valueOf(end_time.substring(0, 2));
+                                        min = Integer.valueOf(end_time.substring(3, 5));
                                     }
                                 }
                                 hour = hourOfDay;
@@ -91,9 +96,9 @@ public class PrefActivity extends AppCompatActivity {
                             @Override
                             public void onClick(View v) {
                                 ContentValues cv = new ContentValues();
-                                cv.put(String.valueOf(list.get(viewPosition).get("set_time")),
-                                        dataLong(hour) + ":" + dataLong(min));
-                                db.update("pref", cv, "name=?", new String[]{"DoNotDisturb"});
+                                String setting_item = String.valueOf(list.get(viewPosition).get("set_time"));
+                                cv.put("data", dataLong(hour) + ":" + dataLong(min));
+                                db.update("pref", cv, "setting_item=?", new String[]{setting_item});
                                 adapter.update();
                                 dialogHandler.getDialog().dismiss();
                             }

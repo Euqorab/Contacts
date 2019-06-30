@@ -150,8 +150,9 @@ public class AddContactActivity extends AppCompatActivity {
                 if (name.equals("") && phone.equals("")) {
                     Toast.makeText(this, "请输入姓名或电话号码", Toast.LENGTH_SHORT).show();
                 }
-                else if(!flag.isEmpty() && flag.equals(CONTACT)) {
-                    int id = intent1.getIntExtra("id", 1);
+                else if(flag != null && flag.equals(CONTACT)) {
+                    Log.e("=========", "update contact");
+                    String id = intent1.getStringExtra("id");
                     try {
                         updateContact(id,name,phone,email,organization,address,birth);
                     } catch (Exception e) {
@@ -161,25 +162,27 @@ public class AddContactActivity extends AppCompatActivity {
                     setResult(445, intent);
                     finish();
                 }
-                else if (!flag.isEmpty() && flag.equals(MY_CARD)) {
+                else if (flag != null && flag.equals(MY_CARD)) {
+                    Log.e("=========", "update card");
                     updateMyCard(name,phone,email,organization,address,birth);
                     Intent intent = getIntent();
                     setResult(445, intent);
                     finish();
                 }
                 else {
+                    Log.e("=========", "add");
                     addContact(name,phone,email,organization,address,birth);
                     Intent intent = getIntent();
                     setResult(445, intent);
                     finish();
                 }
-
                 break;
         }
         return true;
     }
 
     public void addContact(String name,String phone,String email,String organization,String address,String birth){
+        Log.i("+++++++++++++", "add");
         // 插入 raw_contacts 表，并获取 _id 属性
         Uri uri1 = Uri.parse("content://com.android.contacts/raw_contacts");
         ContentValues values = new ContentValues();
@@ -238,7 +241,7 @@ public class AddContactActivity extends AppCompatActivity {
         db.insert("contact", values);
     }
 
-    public void updateContact(int id, String name, String phone, String email, String organization, String address, String birth) throws Exception {
+    public void updateContact(String id, String name, String phone, String email, String organization, String address, String birth) throws Exception {
         Uri uri = Uri.parse("content://com.android.contacts/data");
         // 表 data
         ContentValues values = new ContentValues();
@@ -251,15 +254,20 @@ public class AddContactActivity extends AppCompatActivity {
                 "vnd.android.cursor.item/postal-address_v2",
                 "vnd.android.cursor.item/organization",
         };
+        Cursor c1 = resolver.query(uri, new String[]{"raw_contact_id"}, null, null, null);
+        while (c1.moveToNext()) {
+            Log.i("raw_contact_id", String.valueOf(c1.getString(0)));
+        }
         for (int i = 0; i < mimes.length; i++) {
             values.put("data1", proj[i]);
             if (proj[i].equals(name)) {
                 values.put("data2", proj[i]);
             }
-            Cursor cursor = resolver.query(uri, null, where, new String[]{mimes[i], String.valueOf(id)}, null);
+            Log.e("=======id", id);
+            Cursor cursor = resolver.query(uri, null, "raw_contact_id=?", new String[]{id}, null);
             Log.i("size", String.valueOf(cursor.getCount()));
             if (cursor.getCount() > 0) {
-                resolver.update(uri, values, where, new String[]{mimes[i], String.valueOf(id)});
+                resolver.update(uri, values, where, new String[]{mimes[i], id});
             }
             else if (!proj[i].equals("")) {
                 values.put("raw_contact_id", id);
@@ -270,9 +278,9 @@ public class AddContactActivity extends AppCompatActivity {
         }
         //修改生日
         values.put("birthday", birth);
-        Cursor cursor = db.query("contact", null, "_id=?", new String[]{String.valueOf(id)}, null);
+        Cursor cursor = db.query("contact", null, "_id=?", new String[]{id}, null);
         if (cursor.moveToNext()) {
-            db.update("contact", values, "_id=?", new String[]{String.valueOf(id)});
+            db.update("contact", values, "_id=?", new String[]{id});
         }
         else {
             values.put("_id", String.valueOf(id));

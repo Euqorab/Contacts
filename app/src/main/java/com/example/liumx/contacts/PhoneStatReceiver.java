@@ -76,13 +76,22 @@ public class PhoneStatReceiver extends BroadcastReceiver {
 
     private boolean doNotDisturbModeOn(Context context) {
         ContactDb db = new ContactDb(context);
-        Cursor cursor = db.query("pref", new String[]{"do_not_disturb", "set_time", "start_time", "end_time"},
-                null, null, null);
-        if (cursor.moveToNext()) {
-            boolean doNotDisturb = cursor.getInt(0) == 1 ? true : false;
-            boolean setTime = cursor.getInt(1) == 1 ? true : false;
-            String startTime = cursor.getString(2);
-            String endTime = cursor.getString(3);
+        Cursor cursor = db.query("pref", null, "setting_item IN (?,?,?,?)",
+                new String[]{"do_not_disturb", "set_time", "start_time", "end_time"}, null);
+        if (cursor.getCount() > 0) {
+            boolean doNotDisturb = false, setTime = false;
+            String startTime = "22:00", endTime = "07:00";
+
+            while (cursor.moveToNext()) {
+                if (cursor.getString(0).equals("do_not_disturb"))
+                    doNotDisturb = cursor.getString(1).equals("true");
+                if (cursor.getString(0).equals("set_time"))
+                    setTime = cursor.getString(1).equals("true");
+                if (cursor.getString(0).equals("start_time"))
+                    startTime = cursor.getString(1);
+                if (cursor.getString(0).equals("end_time"))
+                    endTime = cursor.getString(1);
+            }
 
             if (!doNotDisturb) {
                 return false;

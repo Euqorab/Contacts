@@ -50,13 +50,17 @@ public class PrefAdapter extends SimpleAdapter {
         this.from = from;
         this.to = to;
         db = new ContactDb(mContext);
-        Cursor cursor = db.query("pref", new String[]{"do_not_disturb", "set_time"},
-                null, null, null);
+        Cursor cursor = db.query("pref", null, "setting_item IN (?,?)",
+                new String[]{"do_not_disturb", "set_time"}, null);
+        //Log.i("=============", cursor.getCount() + "");
         if (cursor.moveToNext()) {
-            modeEnable = cursor.getInt(0) == 1;
-            timeEnable = cursor.getInt(1) == 1;
+            Log.i("=========", cursor.getString(1) + "");
+            modeEnable = cursor.getString(1).equals("true");
+            cursor.moveToNext();
+            Log.i("=========", cursor.getString(1) + "");
+            timeEnable = cursor.getString(1).equals("true");
         }
-        Log.i("timeenable", String.valueOf(timeEnable));
+        //Log.i("timeenable", String.valueOf(timeEnable));
     }
 
     @Override
@@ -106,15 +110,14 @@ public class PrefAdapter extends SimpleAdapter {
                 viewHolder.title.setTextColor(modeEnable ?
                         convertView.getResources().getColor(R.color.colorText) :
                         convertView.getResources().getColor(R.color.gray));
-            }
 
-            if (data.get(position).get("switch") == "set_time") {
                 if (!modeEnable) {
                     viewHolder.aSwitch.setEnabled(false);
                     viewHolder.aSwitch.setChecked(false);
                 }
                 else {
                     viewHolder.aSwitch.setEnabled(true);
+                    viewHolder.aSwitch.setChecked(timeEnable);
                 }
             }
             else {
@@ -126,8 +129,9 @@ public class PrefAdapter extends SimpleAdapter {
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     ContentValues cv = new ContentValues();
                     Log.e("test", String.valueOf(timeEnable));
-                    cv.put(String.valueOf(data.get(position).get("switch")), isChecked ? 1 : 0);
-                    db.update("pref", cv, "name=?", new String[]{"DoNotDisturb"});
+                    cv.put("data", isChecked ? "true" : "false");
+                    db.update("pref", cv, "setting_item=?",
+                            new String[]{String.valueOf(data.get(position).get("switch"))});
                     if (data.get(position).get("switch") == "do_not_disturb") {
                         modeEnable = !modeEnable;
                     }
@@ -144,21 +148,24 @@ public class PrefAdapter extends SimpleAdapter {
             viewHolder.title.setTextColor(isEnabled(position) ?
                     convertView.getResources().getColor(R.color.colorText) :
                     convertView.getResources().getColor(R.color.gray));
-            Cursor cursor = db.query("pref", new String[]{"start_time", "end_time"},
-                    null, null, null);
+            Cursor cursor = db.query("pref", null, "setting_item IN (?,?)",
+                    new String[]{"start_time", "end_time"}, "setting_item desc");
             String timeTag;
             if (cursor.moveToFirst()) {
+                String start_time = cursor.getString(1);
+                cursor.moveToNext();
+                String end_time = cursor.getString(1);
                 if (data.get(position).get("set_time") == "start_time")
-                    timeTag = cursor.getString(0);
+                    timeTag = start_time;
                 else {
-                    timeTag = cursor.getString(1).compareTo(cursor.getString(0)) <= 0 ?
+                    timeTag = end_time.compareTo(start_time) <= 0 ?
                             "次日 " : "";
-                    timeTag += cursor.getString(1);
+                    timeTag += end_time;
                 }
             }
             else {
                 timeTag = data.get(position).get("set_time") == "start_time" ?
-                        "10:00" : "次日 07:00";
+                        "22:00" : "次日 07:00";
             }
             viewHolder.tag.setVisibility(View.VISIBLE);
             viewHolder.tag.setText(timeTag);

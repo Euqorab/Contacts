@@ -20,9 +20,8 @@ class DBOpenHandler extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE notify_list(_id integer primary key autoincrement," +
                 "raw_id int NOT NULL unique, name nvarchar(64), phone varchar(64)," +
                 "date_time varchar(64), note nvarchar(64))");
-        db.execSQL("CREATE TABLE pref(name nvarchar(64) NOT NULL unique," +
-                "do_not_disturb interger, set_time interger, start_time varchar(64)," +
-                "end_time varchar(64))");
+        db.execSQL("CREATE TABLE pref(setting_item nvarchar(64) NOT NULL unique," +
+                "data varchar(64))");
         db.execSQL("CREATE TABLE contact(_id integer NOT NULL unique," +
                 "birthday varchar(64))");
         db.execSQL("CREATE TABLE my_card(name nvarchar(64), phone varchar(64)," +

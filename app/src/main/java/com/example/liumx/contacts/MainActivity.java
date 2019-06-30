@@ -76,18 +76,7 @@ public class MainActivity extends AppCompatActivity {
         searchView = (SearchView) findViewById(R.id.search_bar);
 
         db = new ContactDb(this);
-//        db.delete("notify_list", null, null);
-        if (db.query("pref", null, null, null, null).getCount() == 0) {
-            Log.e("test", "insert");
-            ContentValues cv = new ContentValues();
-            cv.put("name", "DoNotDisturb");
-            cv.put("do_not_disturb", 0);
-            cv.put("set_time", 0);
-            cv.put("start_time", "22:00");
-            cv.put("end_time", "07:00");
-            db.insert("pref", cv);
-        }
-        //db.delete("white_list", null, null);
+        initPref();
 
         resolver = this.getContentResolver();
         contacts = getContacts(null, null);
@@ -176,9 +165,22 @@ public class MainActivity extends AppCompatActivity {
                     intent.putExtra("address", tmp[4].substring(8));
                     intent.putExtra("organization", tmp[3].substring(13));
                     intent.putExtra("birthday", tmp[5].substring(9));
-                    intent.putExtra("flag", "1");
-                    startActivityForResult(intent, 455);
+                    startActivityForResult(intent, 566);
                 }
+            }
+        }
+    }
+
+    void initPref() {
+        if (db.query("pref", null, null, null, null).getCount() == 0) {
+            Log.e("test", "insert");
+            String[] setting_items = {"do_not_disturb", "set_time", "start_time", "end_time"};
+            String[] data = {"false", "false", "22:00", "07:00"};
+            for (int i = 0; i < setting_items.length; i++) {
+                ContentValues cv = new ContentValues();
+                cv.put("setting_item", setting_items[i]);
+                cv.put("data", data[i]);
+                db.insert("pref", cv);
             }
         }
     }

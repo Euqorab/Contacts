@@ -88,8 +88,8 @@ public class MyCard extends AppCompatActivity {
                 intent.putExtra("name", cursor.getString(0));
                 intent.putExtra("phone", cursor.getString(1));
                 intent.putExtra("email", cursor.getString(2));
-                intent.putExtra("address", cursor.getString(3));
-                intent.putExtra("organization", cursor.getString(4));
+                intent.putExtra("organization", cursor.getString(3));
+                intent.putExtra("address", cursor.getString(4));
                 intent.putExtra("birthday", cursor.getString(5));
             }
             startActivityForResult(intent, 112);

@@ -56,6 +56,7 @@ public class ContactInfoActivity extends AppCompatActivity {
     static private boolean DETAIL = true;
     static private boolean LOG = false;
     private boolean page;
+    private boolean contactChanged = false;
     private DialogHandler dialogHandler;
 
     @Override
@@ -83,6 +84,7 @@ public class ContactInfoActivity extends AppCompatActivity {
         resolver = this.getContentResolver();
 
         _id = getIntent().getStringExtra("_id");
+        Log.e("id======", _id);
         Intent intent = getIntent();
         if (intent.getBooleanExtra("unknow", false))
             contact = getContactByExtra(intent);
@@ -119,8 +121,8 @@ public class ContactInfoActivity extends AppCompatActivity {
         final Intent intent;
         switch (item.getItemId()) {
             case android.R.id.home:
-                intent = getIntent();
-                setResult(445);
+                if (contactChanged)
+                    setResult(445);
                 finish();
                 break;
 
@@ -151,7 +153,7 @@ public class ContactInfoActivity extends AppCompatActivity {
             case R.id.edit:
                 intent = new Intent(this, AddContactActivity.class);
                 System.out.println(contact.getName());
-                intent.putExtra("id",contact.getId());
+                intent.putExtra("id", _id);
                 intent.putExtra("flag","1");
                 if (contact.getName().equals(contact.getPhone()))
                     intent.putExtra("name", "");
@@ -279,6 +281,7 @@ public class ContactInfoActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 344 && resultCode == 445) {
+            contactChanged = true;
             contact = getContact();
             String name = contact.getName() != "" ? contact.getName() : "未备注联系人";
             if (contact.getOrganization() != "") {
