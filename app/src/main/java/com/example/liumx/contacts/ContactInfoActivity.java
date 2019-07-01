@@ -31,6 +31,7 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -58,6 +59,7 @@ public class ContactInfoActivity extends AppCompatActivity {
     private boolean page;
     private boolean contactChanged = false;
     private DialogHandler dialogHandler;
+    private boolean unknowContact = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,14 +86,15 @@ public class ContactInfoActivity extends AppCompatActivity {
         resolver = this.getContentResolver();
 
         _id = getIntent().getStringExtra("_id");
-        Log.e("id======", _id);
+        //Log.e("id======", _id);
         Intent intent = getIntent();
-        if (intent.getBooleanExtra("unknow", false))
+        unknowContact = intent.getBooleanExtra("unknow", false);
+        if (unknowContact)
             contact = getContactByExtra(intent);
         else
             contact = getContact();
 
-        Log.e("======", intent.getBooleanExtra("showLog", false) + "");
+        //Log.e("======", intent.getBooleanExtra("showLog", false) + "");
         initWidget(intent.getBooleanExtra("showLog", false));
     }
 
@@ -102,15 +105,11 @@ public class ContactInfoActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        Intent intent = getIntent();
-        if (!intent.getBooleanExtra("unknow", false)) {
+        if (!unknowContact) {
             contact = getContact();
             int menuId = db.query("white_list", null, "phone=?", new String[]{contact.getPhone()}, null)
                     .getCount() > 0 ? R.menu.menu_contact_info2 : R.menu.menu_contact_info;
             getMenuInflater().inflate(menuId, menu);
-        }
-        else {
-            getMenuInflater().inflate(R.menu.menu_contact_info3, menu);
         }
         return true;
     }
@@ -123,6 +122,10 @@ public class ContactInfoActivity extends AppCompatActivity {
             case android.R.id.home:
                 if (contactChanged)
                     setResult(445);
+
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss");
+                Date date = new Date(System.currentTimeMillis());
+                Log.e("time1", simpleDateFormat.format(date));
                 finish();
                 break;
 
@@ -154,16 +157,19 @@ public class ContactInfoActivity extends AppCompatActivity {
                 intent = new Intent(this, AddContactActivity.class);
                 System.out.println(contact.getName());
                 intent.putExtra("id", _id);
-                intent.putExtra("flag","1");
+                if (!unknowContact)
+                    intent.putExtra("flag", "1");
+                else
+                    intent.putExtra("unknow", true);
                 if (contact.getName().equals(contact.getPhone()))
                     intent.putExtra("name", "");
                 else
-                    intent.putExtra("name",contact.getName());
-                intent.putExtra("phone",contact.getPhone());
-                intent.putExtra("email",contact.getEmail());
-                intent.putExtra("address",contact.getAddress());
-                intent.putExtra("organization",contact.getOrganization());
-                intent.putExtra("birthday",contact.getBirthday());
+                    intent.putExtra("name", contact.getName());
+                intent.putExtra("phone", contact.getPhone());
+                intent.putExtra("email", contact.getEmail());
+                intent.putExtra("address", contact.getAddress());
+                intent.putExtra("organization", contact.getOrganization());
+                intent.putExtra("birthday", contact.getBirthday());
                 startActivityForResult(intent, 344);
                 break;
 
@@ -172,8 +178,7 @@ public class ContactInfoActivity extends AppCompatActivity {
                 String raw_id = String.valueOf(db.getCount("notify_list"));
                 intent1.putExtra("raw_id", raw_id);
                 intent1.putExtra("phone", contact.getPhone());
-                String bornday = contact.getBirthday();
-                if (bornday.equals("") || bornday.isEmpty())
+                if (contact.getBirthday().equals("") || contact.getBirthday().isEmpty())
                     intent1.putExtra("date_time", "");
                 else
                     intent1.putExtra("date_time", getBirthday(contact.getBirthday()));
@@ -280,8 +285,12 @@ public class ContactInfoActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 344 && resultCode == 445) {
+        if (requestCode == 344) {
             contactChanged = true;
+
+            if (resultCode != 65535)
+                _id = String.valueOf(resultCode);
+
             contact = getContact();
             String name = contact.getName() != "" ? contact.getName() : "未备注联系人";
             if (contact.getOrganization() != "") {
@@ -362,14 +371,15 @@ public class ContactInfoActivity extends AppCompatActivity {
     public ContactRec getContact() {
         ContactRec newContact = new ContactRec();
         newContact.setId(Integer.parseInt(_id));
-
         Uri uri = Uri.parse("content://com.android.contacts/contacts");
-        Cursor cursor = resolver.query(uri, new String[]{Data._ID}, "_ID=?", new String[]{_id}, null);
+        Cursor cursor = resolver.query(uri, new String[]{"name_raw_contact_id"}, "_id=? or name_raw_contact_id=?", new String[]{_id, _id}, null);
         if (cursor.getCount() != 0) {
             cursor.moveToFirst();
-            uri = Uri.parse("content://com.android.contacts/contacts/" + _id + "/data");
-            Cursor cursor1 = resolver.query(uri, new String[]{Data.DATA1, Data.MIMETYPE}, null, null, null);
+            _id = cursor.getString(0);
+            uri = Uri.parse("content://com.android.contacts/data");
+            Cursor cursor1 = resolver.query(uri, new String[]{Data.DATA1, Data.DATA2, Data.MIMETYPE}, "raw_contact_id=?", new String[]{_id}, null);
             while (cursor1.moveToNext()) {
+                Log.i(cursor1.getString(2), cursor1.getString(0) + "============" + cursor1.getString(1));
                 String data = cursor1.getString(cursor1.getColumnIndex("data1"));
                 String mimetype = cursor1.getString(cursor1.getColumnIndex("mimetype"));
                 if (mimetype.equals("vnd.android.cursor.item/name")) {
@@ -388,20 +398,29 @@ public class ContactInfoActivity extends AppCompatActivity {
                 else if (mimetype.equals("vnd.android.cursor.item/postal-address_v2")) {
                     newContact.setAddress(data);
                 }
+                else if (mimetype.equals("vnd.android.cursor.item/contact_event") &&
+                        cursor1.getString(1).equals("3")) {
+                    String birth = "";
+                    SimpleDateFormat sf1 = new SimpleDateFormat("yyyy年MM月dd日");
+                    SimpleDateFormat sf2 = new SimpleDateFormat("yyyy-MM-dd");
+                    try {
+                        birth = sf1.format(sf2.parse(data));
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    newContact.setBirthday(birth);
+                }
             }
         }
         cursor.close();
 
-        cursor = db.query("contact", new String[]{"birthday"}, "_id=?", new String[]{_id}, null);
-        if (cursor.moveToNext()) {
-            newContact.setBirthday(cursor.getString(0));
-            Log.e("birthday", cursor.getString(0));
-        }
-
-        if (newContact.getPhone() != "") {
+        Log.e("=========", newContact.getPhone());
+        if (!newContact.getPhone().equals("")) {
             CallInfoLog callInfoLog = new CallInfoLog(resolver);
             newContact.setCallLog(callInfoLog.getCallLog(newContact.getPhone()));
+            Log.i("+++++++++++++", callInfoLog.getCallLog(newContact.getPhone()).size() + "");
         }
+        Log.i("name==========", newContact.getName());
         return newContact;
     }
 
@@ -487,8 +506,9 @@ public class ContactInfoActivity extends AppCompatActivity {
                     map.put("icon", R.drawable.ic_call_closed);
                     break;
             }
-            map.put("title", contact.getCallLog().get(0).get("dayStr")
-                    + " " + contact.getCallLog().get(0).get("time"));
+            map.put("title", contact.getCallLog().get(i).get("dayStr")
+                    + " " + contact.getCallLog().get(i).get("time"));
+            Log.e("=======", contact.getCallLog().get(i).get("time"));
             map.put("subtitle", contact.getFormatPhone());
             map.put("showCallIcon", false);
             map.put("showType", true);
@@ -529,6 +549,10 @@ public class ContactInfoActivity extends AppCompatActivity {
                                         Log.e("number", number);
                                         try {
                                             deleteCallLog(number, deleteDate);
+                                            if (unknowContact)
+                                                contact = getContactByExtra(getIntent());
+                                            else
+                                                contact = getContact();
                                             showLog();
                                         }
                                         catch (Exception e) {
@@ -541,7 +565,7 @@ public class ContactInfoActivity extends AppCompatActivity {
                     }
                 });
                 popupMenu.show();
-                return false;
+                return true;
             }
         });
     }
@@ -561,7 +585,6 @@ public class ContactInfoActivity extends AppCompatActivity {
 
         if (cursor.getCount() > 0) {
             resolver.delete(uri, CallLog.Calls.DATE + "=?", new String[]{deleteDate});
-            contact = getContact();
         }
 
     }

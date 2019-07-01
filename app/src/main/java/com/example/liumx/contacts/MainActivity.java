@@ -6,7 +6,6 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -25,15 +24,9 @@ import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.provider.ContactsContract.Data;
 
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.EncodeHintType;
-import com.google.zxing.WriterException;
-import com.google.zxing.common.BitMatrix;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
-import com.google.zxing.qrcode.QRCodeWriter;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -79,7 +72,8 @@ public class MainActivity extends AppCompatActivity {
         initPref();
 
         resolver = this.getContentResolver();
-        contacts = getContacts(null, null);
+
+        contacts = getContacts();
         showContactList(contacts);
         initWidgets();
 
@@ -106,8 +100,8 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(intent, 566);
                 break;
             case R.id.stat:
-                intent = new Intent(this, StatActivity.class);
-                startActivity(intent);
+                intent = new Intent(this, StatCallLogActivity.class);
+                startActivityForResult(intent, 566);
                 break;
             case R.id.pref:
                 intent = new Intent(this, PrefActivity.class);
@@ -137,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
         Log.e(requestCode + "", resultCode + "");
         if (requestCode == 566 && resultCode == 445) {
             Log.e(requestCode + "", resultCode + "");
-            contacts = getContacts(null, null);
+            contacts = getContacts();
             showContactList(contacts);
             searchView.setQuery("", false);
         }
@@ -174,8 +168,8 @@ public class MainActivity extends AppCompatActivity {
     void initPref() {
         if (db.query("pref", null, null, null, null).getCount() == 0) {
             Log.e("test", "insert");
-            String[] setting_items = {"do_not_disturb", "set_time", "start_time", "end_time"};
-            String[] data = {"false", "false", "22:00", "07:00"};
+            String[] setting_items = {"days_of_call_log", "do_not_disturb", "set_time", "start_time", "end_time"};
+            String[] data = {"-1", "false", "false", "22:00", "07:00"};
             for (int i = 0; i < setting_items.length; i++) {
                 ContentValues cv = new ContentValues();
                 cv.put("setting_item", setting_items[i]);
@@ -203,6 +197,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         searchView.setIconifiedByDefault(false);
+        searchView.clearFocus();
         searchView.findViewById(android.support.v7.appcompat.R.id.search_plate).setBackground(null);
         searchView.findViewById(android.support.v7.appcompat.R.id.submit_area).setBackground(null);
         searchView.setOnCloseListener(new SearchView.OnCloseListener() {
@@ -210,7 +205,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onClose() {
                 searchView.setQuery("", false);
-                contacts = getContacts(null, null);
+                searchView.clearFocus();
+                contacts = getContacts();
                 Log.e("=============", contacts.get(0).getName());
                 showContactList(contacts);
                 return false;
@@ -303,36 +299,47 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public ArrayList<ContactRec> getContacts(String where, String[] whereArgs) {
+    public ArrayList<ContactRec> getContacts() {
         ArrayList<ContactRec> newContacts = new ArrayList<>();
 
         Uri uri = Uri.parse("content://com.android.contacts/contacts");
-        Cursor cursor = resolver.query(uri, new String[]{Data._ID}, null, null, "display_name COLLATE LOCALIZED");
-        if (cursor.getCount() > 0) {
-            while (cursor.moveToNext()) {
-                ContactRec contact = new ContactRec();
-                //获得id并且在data中寻找数据
-                int id = cursor.getInt(0);
-                contact.setId(id);
-                uri = Uri.parse("content://com.android.contacts/contacts/" + id + "/data");
-                //data1存储各个记录的总数据，mimetype存放记录的类型，如电话、email等
-                Cursor cursor1 = resolver.query(uri, new String[]{Data.DATA1, Data.MIMETYPE}, where, whereArgs, null);
-                while (cursor1.moveToNext()) {
-                    String data = cursor1.getString(cursor1.getColumnIndex("data1"));
-                    if (cursor1.getString(cursor1.getColumnIndex("mimetype")).equals("vnd.android.cursor.item/name")) {       //如果是名字
-                        contact.setName(data);
-                    }
-                    if (cursor1.getString(cursor1.getColumnIndex("mimetype")).equals("vnd.android.cursor.item/phone_v2")) {       //如果是名字
-                        contact.setPhone(data);
-                    }
+        Cursor cursor = resolver.query(uri, new String[]{"name_raw_contact_id"}, null, null, "name_raw_contact_id");
+        uri = Uri.parse("content://com.android.contacts/data");
+        Cursor cursor1 = resolver.query(uri, new String[]{"raw_contact_id", "mimetype", "data1"}, null, null, "raw_contact_id");
+
+        if (cursor1.getCount() > 0)
+            cursor1.moveToNext();
+
+        while (cursor.moveToNext()) {
+            ContactRec contact = new ContactRec();
+            //获得id并且在data中寻找数据
+            int id = cursor.getInt(0);
+            contact.setId(id);
+            //Log.i("id", id + " ");
+
+            if (cursor1.getString(1).equals("vnd.android.cursor.item/name")) {
+                contact.setName(cursor1.getString(2));
+            }
+            if (cursor1.getString(1).equals("vnd.android.cursor.item/phone_v2")) {
+                contact.setPhone(cursor1.getString(2));
+            }
+
+            while (cursor1.moveToNext() && cursor1.getInt(0) == id) {
+//                Log.e("======", cursor1.getString(0));
+                if (cursor1.getString(1).equals("vnd.android.cursor.item/name")) {
+                    contact.setName(cursor1.getString(2));
                 }
-                cursor1.close();
-                if(!contact.getName().isEmpty()){
-                    newContacts.add(contact);
+                if (cursor1.getString(1).equals("vnd.android.cursor.item/phone_v2")) {
+                    contact.setPhone(cursor1.getString(2));
                 }
+            }
+
+            if(!contact.getName().isEmpty()){
+                newContacts.add(contact);
             }
         }
         cursor.close();
+
         // 按字典序或拼音字典序排序
         Comparator<ContactRec> comparator = new Comparator<ContactRec>() {
             public int compare(ContactRec o1, ContactRec o2) {
@@ -418,7 +425,7 @@ public class MainActivity extends AppCompatActivity {
                 else {
                     intent = new Intent(MainActivity.this, ContactInfoActivity.class);
                     intent.putExtra("_id", String.valueOf(sContacts.get(position).getId()));
-                    intent.putExtra("unknow", "false");
+                    intent.putExtra("unknow", false);
                     startActivityForResult(intent, 566);
                 }
             }
@@ -446,7 +453,7 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(MainActivity.this, ContactInfoActivity.class);
                 intent.putExtra("_id", String.valueOf(sContacts.get(position).first.getId()));
-                intent.putExtra("unknow", "false");
+                intent.putExtra("unknow", false);
                 startActivityForResult(intent, 566);
             }
         });

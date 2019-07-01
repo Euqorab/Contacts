@@ -18,14 +18,20 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.CheckedTextView;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Euqorab on 2019/5/21.
@@ -104,6 +110,27 @@ public class DialogHandler extends AppCompatActivity {
         dialog.show();//显示对话框
     }
 
+    public void showListWindow(View root, ArrayList<Map<String, Object>> list,
+                               AdapterView.OnItemClickListener onItemClickListener) {
+        dialog = new Dialog(mContext, R.style.BottomDialogStyle);
+
+        SimpleAdapter adapter = new SimpleAdapter(mContext, list, R.layout.dialog_list_item,
+                new String[]{"text"}, new int[]{R.id.item_text});
+        ListView listView = (ListView) root.findViewById(R.id.listView);
+        listView.setAdapter(adapter);
+        listView.setOnItemClickListener(onItemClickListener);
+
+        dialog.setContentView(root);
+        Window dialogWindow = dialog.getWindow();
+        dialogWindow.setGravity(Gravity.BOTTOM);
+        //获得窗体的属性
+        WindowManager.LayoutParams lp = dialogWindow.getAttributes();
+        lp.width = (int) (getScreenWidth(mContext));
+        lp.y = 0; //设置Dialog距离底部的距离
+        dialogWindow.setAttributes(lp); //将属性设置给窗体
+        dialog.show();//显示对话框
+    }
+
     public void showDatePickerWindow(View root, boolean setMinDate, long minDate, DatePicker.OnDateChangedListener onDateChange,
                                      View.OnClickListener confirmAction) {
         dialog = new Dialog(mContext, R.style.BottomDialogStyle);
@@ -158,6 +185,7 @@ public class DialogHandler extends AppCompatActivity {
         confirm.setEnabled(true);
 
         TimePicker timePicker = (TimePicker) root.findViewById(R.id.time_picker);
+        timePicker.setIs24HourView(true);
         Calendar c = Calendar.getInstance();
         if (hour == -1) {
             hour = c.get(Calendar.HOUR);

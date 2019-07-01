@@ -2,6 +2,7 @@ package com.example.liumx.contacts;
 
 import android.content.ContentResolver;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.CallLog;
@@ -15,7 +16,10 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -81,9 +85,18 @@ public class MultiDeleteActivity extends AppCompatActivity {
             case R.id.delete:
                 if (adapter.getCheckedPosition().size() > 0) {
                     View root = getLayoutInflater().inflate(R.layout.dialog_bottom, null);
+                    ContactDb db = new ContactDb(this);
+                    Cursor cursor = db.query("pref", null, "setting_item=?",
+                            new String[]{"days_of_call_log"}, null);
+                    int[] days = {-1, 7, 30, 180, 365};
+                    final String[] dayStr = {"全部", "一周内", "一个月内", "半年内", "一年内"};
+                    int pos = 0;
+                    if (cursor.moveToNext())
+                        for (; days[pos] != Integer.valueOf(cursor.getString(1)); pos++);
+
                     dialogHandler.showBottomWindow(root,
                             "是否删除" + adapter.getCheckedPosition().size() + "项通话记录",
-                            "已选择的通话记录将从本机删除。是否删除？",
+                            dayStr[pos] + "已选择的通话记录将从本机删除。是否删除？",
                             "我已阅读并了解",
                             new View.OnClickListener() {
                                 @Override
@@ -92,7 +105,12 @@ public class MultiDeleteActivity extends AppCompatActivity {
                                     for (int i = 0; i < checkedPositon.size(); i++) {
                                         int pos = checkedPositon.get(i);
                                         Log.e("num", contacts.get(pos).getPhone());
-                                        deleteCallLog(contacts.get(pos).getPhone());
+                                        ArrayList<Map<String, String>> callLog = contacts.get(pos).getCallLog();
+                                        Log.i("size====", callLog.size() + "");
+                                        for (int j = 0; j < callLog.size(); j++) {
+                                            Log.i("+++++++++", callLog.get(j).get("date"));
+                                            deleteCallLog(contacts.get(pos).getPhone(), callLog.get(j).get("datelong"));
+                                        }
                                     }
                                     contacts = getContacts();
                                     showLog();
@@ -121,22 +139,57 @@ public class MultiDeleteActivity extends AppCompatActivity {
     }
 
     public void showLog() {
-        ArrayList<Map<String, Object>> list = new ArrayList<>();
+        final ArrayList<Map<String, Object>> list = new ArrayList<>();
         for (int i = 0; i < contacts.size(); i++) {
             ArrayList<Map<String, String>> callLog = contacts.get(i).getCallLog();
+            ContactDb db = new ContactDb(this);
+            Cursor cursor = db.query("pref", null, "setting_item=?", new String[]{"days_of_call_log"}, null);
+            int days = callLog.size();
+            if (cursor.moveToNext())
+                days = Integer.valueOf(cursor.getString(1));
+
+            Date targetDate = Calendar.getInstance().getTime();
+            targetDate = new Date(targetDate.getTime() - (long) days * 24 * 60 * 60 * 1000);
+            SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd");
+
+            int totalDur = 0;
+            for (int j = 0; j < callLog.size(); j++) {
+                Log.e("date", callLog.get(j).get("date"));
+                Log.e("tgdate", sf.format(targetDate));
+                try {
+                    Date callDate = sf.parse(callLog.get(j).get("date"));
+                    Log.e(contacts.get(i).getName(), callDate + "====" + targetDate);
+                    if (callDate.getTime() >= targetDate.getTime() || days == -1) {
+                        totalDur += Integer.valueOf(callLog.get(j).get("duration"));
+                    }
+                    else {
+                        callLog.remove(j);
+                        j--;
+                    }
+                } catch (Exception e) {}
+            }
 
             if (callLog.size() > 0) {
                 Map<String, Object> map = new HashMap<String, Object>();
                 map.put("icon", "-1");
                 String title = contacts.get(i).getName();
+
                 if (callLog.size() > 1) {
                     title += "(" + callLog.size() + ")";
                 }
                 map.put("title", title);
-                map.put("subtitle", callLog.get(0).get("dayStr")
+                map.put("subtitle", "最近通话：" + callLog.get(0).get("dayStr")
                         + " " + callLog.get(0).get("time"));
                 map.put("showCallIcon", false);
-                map.put("showType", false);
+                map.put("showType", true);
+
+                String typeStr;
+                if (totalDur == 0)
+                    typeStr = "未接通";
+                else
+                    typeStr = "共" + (totalDur < 60 ? totalDur + "秒" : (totalDur / 60) + "分钟");
+
+                map.put("type", typeStr);
                 list.add(map);
             }
         }
@@ -159,14 +212,34 @@ public class MultiDeleteActivity extends AppCompatActivity {
             }
         });
     }
-
-    public void deleteCallLog(String phone)
+//
+//    public void deleteCallLog(String phone)
+//    {
+//        Uri uri = CallLog.Calls.CONTENT_URI;
+//        String where = CallLog.Calls.NUMBER + "=?";
+//        String[] whereArgs = new String[]{phone};
+//        resolver.delete(uri, where, whereArgs);
+//    }
+//
+    public void deleteCallLog(String number, String deleteDate)
     {
         Uri uri = CallLog.Calls.CONTENT_URI;
+        String[] project = {CallLog.Calls.CACHED_NAME// 通话记录的联系人
+                , CallLog.Calls.NUMBER// 通话记录的电话号码
+                , CallLog.Calls.DATE// 通话记录的日期
+                , CallLog.Calls.DURATION// 通话时长
+                , CallLog.Calls.TYPE};// 通话类型}
         String where = CallLog.Calls.NUMBER + "=?";
-        String[] whereArgs = new String[]{phone};
-        resolver.delete(uri, where, whereArgs);
+        String[] whereArgs = new String[]{number};
+        String orderBy = CallLog.Calls.DATE + " desc";
+        Cursor cursor = resolver.query(uri, project, where, whereArgs, orderBy);
+
+        Log.e("============", deleteDate);
+        if (cursor.getCount() > 0) {
+            resolver.delete(uri, CallLog.Calls.DATE + "=?", new String[]{deleteDate});
+        }
     }
+
 }
 
 

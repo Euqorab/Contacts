@@ -47,6 +47,7 @@ public class CallInfoLog {
                 String number = cursor.getString(cursor.getColumnIndex(CallLog.Calls.NUMBER));
                 String name = cursor.getString(cursor.getColumnIndex(CallLog.Calls.CACHED_NAME));
                 long dateLong = cursor.getLong(cursor.getColumnIndex(CallLog.Calls.DATE));
+                String datelongStr = cursor.getString(cursor.getColumnIndex(CallLog.Calls.DATE));
                 String date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(dateLong));
                 String time = new SimpleDateFormat("HH:mm").format(new Date(dateLong));
                 int dur = cursor.getInt(cursor.getColumnIndex(CallLog.Calls.DURATION));
@@ -100,6 +101,7 @@ public class CallInfoLog {
                 map.put("name", name);
                 map.put("phone", number);
                 map.put("date", date);//通话日期
+                map.put("datelong", datelongStr);
                 map.put("duration", String.valueOf(dur));//时长
                 map.put("type", type);
                 map.put("typeStr", typeStr);//类型
@@ -198,13 +200,12 @@ public class CallInfoLog {
                     dayStr = "昨天";
                 } else {
                     dayStr = new SimpleDateFormat("MM-dd").format(new Date(dateLong));
-                    ;
                 }
 
                 Map<String, String> map = new HashMap<String, String>();
                 map.put("number", number);
                 map.put("datelong", datelongStr);
-                Log.e("datelong", datelongStr);
+                Log.e("datelong", time);
                 map.put("date", date);//通话日期
                 map.put("duration", duration);//时长
                 map.put("type", type);

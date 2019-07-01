@@ -28,6 +28,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 /**
@@ -144,7 +146,16 @@ public class AddContactActivity extends AppCompatActivity {
                 String phone = editPhone.getText().toString();
                 String email = editEmail.getText().toString();
                 String organization = editOrganization.getText().toString();
+
                 String birth = birthday.getText().toString();
+                SimpleDateFormat sf1 = new SimpleDateFormat("yyyy年MM月dd日");
+                SimpleDateFormat sf2 = new SimpleDateFormat("yyyy-MM-dd");
+                try {
+                    birth = sf2.format(sf1.parse(birth));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
                 Intent intent1 = getIntent();
                 String flag = intent1.getStringExtra("flag");
                 if (name.equals("") && phone.equals("")) {
@@ -159,21 +170,26 @@ public class AddContactActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                     Intent intent = getIntent();
-                    setResult(445, intent);
+                    setResult(65535, intent);
                     finish();
                 }
                 else if (flag != null && flag.equals(MY_CARD)) {
                     Log.e("=========", "update card");
                     updateMyCard(name,phone,email,organization,address,birth);
                     Intent intent = getIntent();
-                    setResult(445, intent);
+                    setResult(65535, intent);
                     finish();
                 }
                 else {
                     Log.e("=========", "add");
-                    addContact(name,phone,email,organization,address,birth);
+                    int id = addContact(name,phone,email,organization,address,birth);
                     Intent intent = getIntent();
-                    setResult(445, intent);
+                    if (intent.getBooleanExtra("unknow", false)){
+                        setResult(id, intent);
+                    }
+                    else {
+                        setResult(65535, intent);
+                    }
                     finish();
                 }
                 break;
@@ -181,7 +197,7 @@ public class AddContactActivity extends AppCompatActivity {
         return true;
     }
 
-    public void addContact(String name,String phone,String email,String organization,String address,String birth){
+    public int addContact(String name,String phone,String email,String organization,String address,String birth){
         Log.i("+++++++++++++", "add");
         // 插入 raw_contacts 表，并获取 _id 属性
         Uri uri1 = Uri.parse("content://com.android.contacts/raw_contacts");
@@ -235,17 +251,26 @@ public class AddContactActivity extends AppCompatActivity {
             resolver.insert(uri2, values);
             values.clear();
         }
+        //add birthday
+        if(!birth.isEmpty())
+        {
+            values.put("raw_contact_id", rawContactId);
+            values.put(ContactsContract.Contacts.Data.MIMETYPE, "vnd.android.cursor.item/contact_event");
+            values.put("data2", "3");
+            values.put("data1", address);
+            resolver.insert(uri2, values);
+            values.clear();
+        }
 
-        values.put("_id", rawContactId);
-        values.put("birthday", birth);
         db.insert("contact", values);
+        return (int)rawContactId;
     }
 
     public void updateContact(String id, String name, String phone, String email, String organization, String address, String birth) throws Exception {
         Uri uri = Uri.parse("content://com.android.contacts/data");
         // 表 data
         ContentValues values = new ContentValues();
-        String[] proj = {phone, name, email, address, organization};
+        String[] proj = {phone, name, email, address, organization, birth};
         String where = "mimetype=? and raw_contact_id=?";
         String[] mimes = {
                 "vnd.android.cursor.item/phone_v2",
@@ -253,19 +278,19 @@ public class AddContactActivity extends AppCompatActivity {
                 "vnd.android.cursor.item/email_v2",
                 "vnd.android.cursor.item/postal-address_v2",
                 "vnd.android.cursor.item/organization",
+                "vnd.android.cursor.item/contact_event"
         };
-        Cursor c1 = resolver.query(uri, new String[]{"raw_contact_id"}, null, null, null);
-        while (c1.moveToNext()) {
-            Log.i("raw_contact_id", String.valueOf(c1.getString(0)));
-        }
         for (int i = 0; i < mimes.length; i++) {
             values.put("data1", proj[i]);
             if (proj[i].equals(name)) {
                 values.put("data2", proj[i]);
             }
-            Log.e("=======id", id);
-            Cursor cursor = resolver.query(uri, null, "raw_contact_id=?", new String[]{id}, null);
-            Log.i("size", String.valueOf(cursor.getCount()));
+            else if (proj[i].equals(birth)) {
+                values.put("data2", "3");
+            }
+            //Log.e("=======id", id);
+            Cursor cursor = resolver.query(uri, null, where, new String[]{mimes[i], id}, null);
+            //Log.i("size", String.valueOf(cursor.getCount()));
             if (cursor.getCount() > 0) {
                 resolver.update(uri, values, where, new String[]{mimes[i], id});
             }
@@ -277,15 +302,15 @@ public class AddContactActivity extends AppCompatActivity {
             values.clear();
         }
         //修改生日
-        values.put("birthday", birth);
-        Cursor cursor = db.query("contact", null, "_id=?", new String[]{id}, null);
-        if (cursor.moveToNext()) {
-            db.update("contact", values, "_id=?", new String[]{id});
-        }
-        else {
-            values.put("_id", String.valueOf(id));
-            db.insert("contact", values);
-        }
+//        values.put("birthday", birth);
+//        Cursor cursor = db.query("contact", null, "_id=?", new String[]{id}, null);
+//        if (cursor.moveToNext()) {
+//            db.update("contact", values, "_id=?", new String[]{id});
+//        }
+//        else {
+//            values.put("_id", String.valueOf(id));
+//            db.insert("contact", values);
+//        }
     }
 
     public void updateMyCard(String name, String phone, String email, String organization, String address, String birthday) {

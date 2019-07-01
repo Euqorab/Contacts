@@ -22,8 +22,6 @@ class DBOpenHandler extends SQLiteOpenHelper {
                 "date_time varchar(64), note nvarchar(64))");
         db.execSQL("CREATE TABLE pref(setting_item nvarchar(64) NOT NULL unique," +
                 "data varchar(64))");
-        db.execSQL("CREATE TABLE contact(_id integer NOT NULL unique," +
-                "birthday varchar(64))");
         db.execSQL("CREATE TABLE my_card(name nvarchar(64), phone varchar(64)," +
                 "email varchar(64), organization varchar(64), address varchar(64)" +
                 ", birthday varchar(64))");

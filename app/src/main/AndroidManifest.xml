@@ -18,8 +18,7 @@
     android:supportsRtl="true"
     android:theme="@style/AppToolbarTheme">
 
-        <activity android:name=".MainActivity"
-            android:launchMode="singleTask">
+        <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -40,8 +39,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".StatActivity"
-            android:launchMode="singleTop">
+        <activity android:name=".StatCallLogActivity">
             <intent-filter>
                 <action android:name="android.intent.action.Stat" />
                 <category android:name="android.intent.category.LAUNCHER3" />
@@ -54,16 +52,14 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".AddNoitificationActivity"
-            android:launchMode="singleTop">
+        <activity android:name=".AddNoitificationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.Notification" />
                 <category android:name="android.intent.category.LAUNCHER4" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".StatNotificationActivity"
-            android:launchMode="singleTop">
+        <activity android:name=".StatNotificationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.StatNotification" />
                 <category android:name="android.intent.category.LAUNCHER5" />

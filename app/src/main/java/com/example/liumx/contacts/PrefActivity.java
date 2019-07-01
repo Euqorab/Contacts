@@ -24,6 +24,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Created by Euqorab on 2019/5/28.
@@ -56,6 +57,8 @@ public class PrefActivity extends AppCompatActivity {
 
         listView = (ListView) findViewById(R.id.listView);
         list = new ArrayList<>();
+        list.add(buildItem("通话统计展示时段", "", "", "", "全部"));
+        list.add(buildItem("", "", "", "", ""));
         list.add(buildItem("开启免打扰", "拦截非白名单内的来电", "do_not_disturb", "", ""));
         list.add(buildItem("设定拦截时间", "", "set_time", "", ""));
         list.add(buildItem("开始时间", "", "", "start_time", "10:00"));
@@ -67,42 +70,65 @@ public class PrefActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 viewPosition = position;
-                View root = getLayoutInflater().inflate(R.layout.dialog_time, null);
-                Log.e("root", String.valueOf(root == null));
-                dialogHandler.showTimePickerWindow(root, hour, min, new TimePicker.OnTimeChangedListener() {
-                            @Override
-                            public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
-                                Cursor cursor = db.query("pref", null, "setting_item IN (?,?)",
-                                        new String[]{"start_time", "end_time"}, "setting_item desc");
-                                if (cursor.moveToNext()) {
-                                    Log.i("============+++++", "===");
-                                    String start_time, end_time;
-                                    start_time = cursor.getString(1);
-                                    cursor.moveToNext();
-                                    end_time = cursor.getString(1);
-                                    if (list.get(viewPosition).get("set_time") == "start_time") {
-                                        hour = Integer.valueOf(start_time.substring(0, 2));
-                                        min = Integer.valueOf(start_time.substring(3, 5));
-                                    } else {
-                                        hour = Integer.valueOf(end_time.substring(0, 2));
-                                        min = Integer.valueOf(end_time.substring(3, 5));
+                if (position == 0) {
+                    View root = getLayoutInflater().inflate(R.layout.dialog_list, null);
+                    ArrayList<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+                    final String[] listItems = {"全部", "一周内", "一个月内", "半年内", "一年内"};
+                    for (int i = 0; i < listItems.length; i++) {
+                        Map<String, Object> map = new HashMap<String, Object>();
+                        map.put("text", listItems[i]);
+                        list.add(map);
+                    }
+                    dialogHandler.showListWindow(root, list, new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                            int[] days = {-1, 7, 30, 180, 365};
+                            ContentValues cv = new ContentValues();
+                            cv.put("data", days[position]);
+                            db.update("pref", cv, "setting_item=?", new String[]{"days_of_call_log"});
+                            adapter.update();
+                            dialogHandler.getDialog().dismiss();
+                        }
+                    });
+                }
+                else {
+                    View root = getLayoutInflater().inflate(R.layout.dialog_time, null);
+                    Log.e("root", String.valueOf(root == null));
+                    dialogHandler.showTimePickerWindow(root, hour, min, new TimePicker.OnTimeChangedListener() {
+                                @Override
+                                public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
+                                    Cursor cursor = db.query("pref", null, "setting_item IN (?,?)",
+                                            new String[]{"start_time", "end_time"}, "setting_item desc");
+                                    if (cursor.moveToNext()) {
+                                        Log.i("============+++++", "===");
+                                        String start_time, end_time;
+                                        start_time = cursor.getString(1);
+                                        cursor.moveToNext();
+                                        end_time = cursor.getString(1);
+                                        if (list.get(viewPosition).get("set_time") == "start_time") {
+                                            hour = Integer.valueOf(start_time.substring(0, 2));
+                                            min = Integer.valueOf(start_time.substring(3, 5));
+                                        } else {
+                                            hour = Integer.valueOf(end_time.substring(0, 2));
+                                            min = Integer.valueOf(end_time.substring(3, 5));
+                                        }
                                     }
+                                    hour = hourOfDay;
+                                    min = minute;
                                 }
-                                hour = hourOfDay;
-                                min = minute;
-                            }
-                        },
-                        new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                ContentValues cv = new ContentValues();
-                                String setting_item = String.valueOf(list.get(viewPosition).get("set_time"));
-                                cv.put("data", dataLong(hour) + ":" + dataLong(min));
-                                db.update("pref", cv, "setting_item=?", new String[]{setting_item});
-                                adapter.update();
-                                dialogHandler.getDialog().dismiss();
-                            }
-                        });
+                            },
+                            new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    ContentValues cv = new ContentValues();
+                                    String setting_item = String.valueOf(list.get(viewPosition).get("set_time"));
+                                    cv.put("data", dataLong(hour) + ":" + dataLong(min));
+                                    db.update("pref", cv, "setting_item=?", new String[]{setting_item});
+                                    adapter.update();
+                                    dialogHandler.getDialog().dismiss();
+                                }
+                            });
+                }
             }
         });
     }

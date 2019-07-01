@@ -19,7 +19,10 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,7 +30,7 @@ import java.util.Map;
  * Created by Euqorab on 2019/6/21.
  */
 
-public class StatActivity extends AppCompatActivity {
+public class StatCallLogActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private ContentResolver resolver;
     private ListView listView;
@@ -68,13 +71,16 @@ public class StatActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Intent intent;
         switch (item.getItemId()) {
             case android.R.id.home:
+                intent = getIntent();
+                setResult(445, intent);
                 finish();
                 break;
 
             case R.id.multi_delete:
-                Intent intent = new Intent(this, MultiDeleteActivity.class);
+                intent = new Intent(this, MultiDeleteActivity.class);
                 startActivityForResult(intent, 810);
                 break;
         }
@@ -110,24 +116,44 @@ public class StatActivity extends AppCompatActivity {
         final ArrayList<Map<String, Object>> list = new ArrayList<>();
         for (int i = 0; i < contacts.size(); i++) {
             ArrayList<Map<String, String>> callLog = contacts.get(i).getCallLog();
+            ContactDb db = new ContactDb(this);
+            Cursor cursor = db.query("pref", null, "setting_item=?", new String[]{"days_of_call_log"}, null);
+            int days = callLog.size();
+            if (cursor.moveToNext())
+                days = Integer.valueOf(cursor.getString(1));
 
-            if (callLog.size() > 0) {
+            Date targetDate = Calendar.getInstance().getTime();
+            targetDate = new Date(targetDate.getTime() - (long) days * 24 * 60 * 60 * 1000);
+            SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd");
+
+            int totalDur = 0, callLogNum = 0;
+            for (int j = 0; j < callLog.size(); j++) {
+                Log.e("date", callLog.get(j).get("date"));
+                Log.e("tgdate", sf.format(targetDate));
+                try {
+                    Date callDate = sf.parse(callLog.get(j).get("date"));
+                    Log.e(contacts.get(i).getName(), callDate + "====" + targetDate);
+                    if (callDate.getTime() >= targetDate.getTime() || days == -1) {
+                        totalDur += Integer.valueOf(callLog.get(j).get("duration"));
+                        callLogNum++;
+                    }
+                } catch (Exception e) {}
+            }
+
+            if (callLogNum > 0) {
                 Map<String, Object> map = new HashMap<String, Object>();
                 map.put("icon", "-1");
                 String title = contacts.get(i).getName();
-                if (callLog.size() > 1) {
-                    title += "(" + callLog.size() + ")";
+
+                if (callLogNum > 1) {
+                    title += "(" + callLogNum + ")";
                 }
                 map.put("title", title);
-                map.put("subtitle", callLog.get(0).get("dayStr")
+                map.put("subtitle", "最近通话：" + callLog.get(0).get("dayStr")
                         + " " + callLog.get(0).get("time"));
                 map.put("showCallIcon", false);
                 map.put("showType", true);
 
-                int totalDur = 0;
-                for (int j = 0; j < callLog.size(); j++) {
-                    totalDur += Integer.valueOf(callLog.get(j).get("duration"));
-                }
                 String typeStr;
                 if (totalDur == 0)
                     typeStr = "未接通";
@@ -145,7 +171,8 @@ public class StatActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(StatActivity.this, ContactInfoActivity.class);
+                Log.i("click", "===============");
+                Intent intent = new Intent(StatCallLogActivity.this, ContactInfoActivity.class);
                 Uri uri = Uri.parse("content://com.android.contacts/contacts");
                 Cursor cursor = resolver.query(uri,
                         new String[]{Data._ID},
@@ -154,6 +181,7 @@ public class StatActivity extends AppCompatActivity {
                         null);
                 if (cursor.moveToNext()) {
                     intent.putExtra("_id", String.valueOf(cursor.getInt(0)));
+                    intent.putExtra("unknow", false);
                     intent.putExtra("showLog", true);
                 }
                 else {
@@ -167,7 +195,8 @@ public class StatActivity extends AppCompatActivity {
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
-                final PopupMenu popupMenu = new PopupMenu(StatActivity.this, view);
+                Log.i("LongClick", "===========");
+                final PopupMenu popupMenu = new PopupMenu(StatCallLogActivity.this, view);
                 popupMenu.getMenuInflater().inflate(R.menu.menu_pop_delete, popupMenu.getMenu());
                 popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
@@ -199,7 +228,7 @@ public class StatActivity extends AppCompatActivity {
                     }
                 });
                 popupMenu.show();
-                return false;
+                return true;
             }
         });
     }

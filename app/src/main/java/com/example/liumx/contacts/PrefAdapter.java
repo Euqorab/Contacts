@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.SimpleAdapter;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -39,6 +40,8 @@ public class PrefAdapter extends SimpleAdapter {
         TextView subtitle;
         Switch aSwitch;
         TextView tag;
+        ImageView divider;
+        LinearLayout prefItem;
     }
 
     public PrefAdapter(Context mContext, ArrayList<Map<String, Object>> data,
@@ -65,6 +68,9 @@ public class PrefAdapter extends SimpleAdapter {
 
     @Override
     public boolean isEnabled(int position) {
+        if (position == 0) {
+            return true;
+        }
         if (!modeEnable) {
             return false;
         }
@@ -89,6 +95,8 @@ public class PrefAdapter extends SimpleAdapter {
             viewHolder.subtitle = (TextView) convertView.findViewById(R.id.subtitle);
             viewHolder.aSwitch = (Switch) convertView.findViewById(R.id.switch1);
             viewHolder.tag = (TextView) convertView.findViewById(R.id.tag);
+            viewHolder.divider = (ImageView) convertView.findViewById(R.id.item_divider);
+            viewHolder.prefItem = (LinearLayout) convertView.findViewById(R.id.pref_item);
         }
         else {
             viewHolder = (PrefAdapter.ViewHolder) convertView.getTag();
@@ -103,7 +111,22 @@ public class PrefAdapter extends SimpleAdapter {
             viewHolder.subtitle.setText(String.valueOf(data.get(position).get("subtitle")));
         }
 
-        if (data.get(position).get("switch") != "") {
+        if (position == 0) {
+            Cursor cursor = db.query("pref", null, "setting_item=?",
+                    new String[]{"days_of_call_log"}, null);
+            if (cursor.moveToNext()) {
+                String[] dayStr = {"全部", "一周内", "一个月内", "半年内", "一年内"};
+                int days = Integer.valueOf(cursor.getString(1));
+                int[] dayInt = {-1, 7, 30, 180, 365};
+                for (int i = 0; i < dayInt.length; i++) {
+                    if (dayInt[i] == days)
+                        viewHolder.tag.setText(dayStr[i]);
+                }
+                viewHolder.tag.setVisibility(View.VISIBLE);
+            }
+        }
+
+        else if (position == 2 || position == 3) {
             viewHolder.aSwitch.setVisibility(View.VISIBLE);
 
             if (data.get(position).get("switch") == "set_time") {
@@ -144,7 +167,7 @@ public class PrefAdapter extends SimpleAdapter {
             });
         }
 
-        if (data.get(position).get("set_time") != "") {
+        else if (position == 4 || position == 5) {
             viewHolder.title.setTextColor(isEnabled(position) ?
                     convertView.getResources().getColor(R.color.colorText) :
                     convertView.getResources().getColor(R.color.gray));
@@ -170,9 +193,9 @@ public class PrefAdapter extends SimpleAdapter {
             viewHolder.tag.setVisibility(View.VISIBLE);
             viewHolder.tag.setText(timeTag);
         }
-        else if (data.get(position).get("tag") != "") {
-            viewHolder.tag.setVisibility(View.VISIBLE);
-            viewHolder.tag.setText(String.valueOf(data.get(position).get("tag")));
+        else {
+            viewHolder.divider.setVisibility(View.VISIBLE);
+            viewHolder.prefItem.setVisibility(View.GONE);
         }
 
         return convertView;

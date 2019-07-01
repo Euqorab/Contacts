@@ -13,6 +13,7 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowAnimationStyle">@style/Animation</item>
     </style>
 
     <!-- The toolbar will replace the standard action bar, so we
@@ -24,6 +25,7 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:background">@color/transparent</item>
         <item name="android:colorButtonNormal">@color/white</item>
+        <item name="android:windowAnimationStyle">@style/Animation</item>
 
     </style>
 
@@ -59,6 +61,19 @@
         <item name="android:windowIsTranslucent">false</item>
     </style>
 
-
+    <style name="Animation">
+        <item name="android:activityOpenEnterAnimation">@null</item>
+        <item name="android:activityOpenExitAnimation">@null</item>
+        <item name="android:activityCloseEnterAnimation">@null</item>
+        <item name="android:activityCloseExitAnimation">@null</item>
+        <item name="android:taskOpenEnterAnimation">@null</item>
+        <item name="android:taskOpenExitAnimation">@null</item>
+        <item name="android:taskCloseEnterAnimation">@null</item>
+        <item name="android:taskCloseExitAnimation">@null</item>
+        <item name="android:taskToFrontEnterAnimation">@null</item>
+        <item name="android:taskToFrontExitAnimation">@null</item>
+        <item name="android:taskToBackEnterAnimation">@null</item>
+        <item name="android:taskToBackExitAnimation">@null</item>
+    </style>
 
 </resources>
