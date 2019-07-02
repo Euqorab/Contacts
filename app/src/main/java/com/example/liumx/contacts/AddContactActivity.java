@@ -170,14 +170,14 @@ public class AddContactActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                     Intent intent = getIntent();
-                    setResult(65535, intent);
+                    setResult(445, intent);
                     finish();
                 }
                 else if (flag != null && flag.equals(MY_CARD)) {
                     Log.e("=========", "update card");
                     updateMyCard(name,phone,email,organization,address,birth);
                     Intent intent = getIntent();
-                    setResult(65535, intent);
+                    setResult(445, intent);
                     finish();
                 }
                 else {
@@ -188,7 +188,7 @@ public class AddContactActivity extends AppCompatActivity {
                         setResult(id, intent);
                     }
                     else {
-                        setResult(65535, intent);
+                        setResult(445, intent);
                     }
                     finish();
                 }
@@ -257,7 +257,7 @@ public class AddContactActivity extends AppCompatActivity {
             values.put("raw_contact_id", rawContactId);
             values.put(ContactsContract.Contacts.Data.MIMETYPE, "vnd.android.cursor.item/contact_event");
             values.put("data2", "3");
-            values.put("data1", address);
+            values.put("data1", birth);
             resolver.insert(uri2, values);
             values.clear();
         }
@@ -267,6 +267,7 @@ public class AddContactActivity extends AppCompatActivity {
     }
 
     public void updateContact(String id, String name, String phone, String email, String organization, String address, String birth) throws Exception {
+        Log.e("+++++++", "update" + id);
         Uri uri = Uri.parse("content://com.android.contacts/data");
         // 表 data
         ContentValues values = new ContentValues();
@@ -301,16 +302,6 @@ public class AddContactActivity extends AppCompatActivity {
             }
             values.clear();
         }
-        //修改生日
-//        values.put("birthday", birth);
-//        Cursor cursor = db.query("contact", null, "_id=?", new String[]{id}, null);
-//        if (cursor.moveToNext()) {
-//            db.update("contact", values, "_id=?", new String[]{id});
-//        }
-//        else {
-//            values.put("_id", String.valueOf(id));
-//            db.insert("contact", values);
-//        }
     }
 
     public void updateMyCard(String name, String phone, String email, String organization, String address, String birthday) {

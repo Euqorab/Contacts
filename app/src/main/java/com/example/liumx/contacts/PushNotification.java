@@ -62,7 +62,10 @@ public class PushNotification extends Service{
                 NotificationManager mn = (NotificationManager) PushNotification.this.getSystemService(NOTIFICATION_SERVICE);
                 Notification.Builder builder = new Notification.Builder(PushNotification.this);
                 Log.e("phone", intent.getStringExtra("phone"));
-                Intent notificationIntent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + intent.getStringExtra("phone")));
+                Intent notificationIntent = new Intent(PushNotification.this, ContactInfoActivity.class);
+                notificationIntent.putExtra("unknow", true);
+                notificationIntent.putExtra("phone", intent.getStringExtra("phone"));
+//                Intent notificationIntent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + intent.getStringExtra("phone")));
                 PendingIntent contentIntent = PendingIntent.getActivity(PushNotification.this, 0, notificationIntent, 0);
                 builder.setContentIntent(contentIntent);
                 builder.setSmallIcon(R.drawable.ic_input_add);

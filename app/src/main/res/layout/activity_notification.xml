@@ -70,6 +70,8 @@
         android:ems="13"
         android:id="@+id/edit_phone_notify"
         android:inputType="phone"
+        android:layout_marginEnd="20dp"
+        android:layout_marginRight="20dp"
         android:layout_alignTop="@+id/image_phone_notify"
         android:layout_alignLeft="@+id/edit_name_notify"
         android:layout_alignStart="@+id/edit_name_notify" />
@@ -90,17 +92,18 @@
         android:text="选择提醒的时间"
         android:textSize="18sp"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="45dp"
         android:layout_alignLeft="@+id/edit_phone_notify"
         android:layout_alignStart="@+id/edit_phone_notify"
         android:id="@+id/text_time_notify"
         android:gravity="left|center"
         android:autoLink="all"
         android:paddingLeft="4dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginRight="20dp"
         android:layout_alignRight="@+id/edit_phone_notify"
         android:layout_alignEnd="@+id/edit_phone_notify"
-        android:layout_alignTop="@+id/image_time_notify"
-        android:layout_above="@+id/edit_note_notify" />
+        android:layout_alignTop="@+id/image_time_notify" />
 
     <ImageView
         android:layout_width="40dp"
@@ -122,6 +125,8 @@
         android:ems="13"
         android:id="@+id/edit_note_notify"
         android:layout_marginTop="15dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginRight="20dp"
         android:layout_below="@+id/image_time_notify"
         android:layout_alignLeft="@+id/edit_phone_notify"
         android:layout_alignStart="@+id/edit_phone_notify" />

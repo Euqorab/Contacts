@@ -68,7 +68,7 @@ public class StatNotificationActivity extends AppCompatActivity {
                 break;
 
             case R.id.add:
-                Intent intent = new Intent(this, AddNoitificationActivity.class);
+                Intent intent = new Intent(this, AddNotificationActivity.class);
                 String raw_id = String .valueOf(db.getCount("notify_list"));
                 intent.putExtra("raw_id", raw_id);
                 startActivityForResult(intent, 99);
@@ -106,6 +106,7 @@ public class StatNotificationActivity extends AppCompatActivity {
             map.put("note", note);
             map.put("raw_id", raw_id);
             Date dateTime = null;
+            Log.i("======Str_time===", date);
             try {
                 SimpleDateFormat formatter = new SimpleDateFormat("yyyy年MM月dd日HH时mm分");
                 dateTime = formatter.parse(date);
@@ -124,7 +125,7 @@ public class StatNotificationActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(StatNotificationActivity.this, AddNoitificationActivity.class);
+                Intent intent = new Intent(StatNotificationActivity.this, AddNotificationActivity.class);
                 intent.putExtra("raw_id", String.valueOf(list.get(position).get("raw_id")));
                 startActivityForResult(intent, 99);
             }
@@ -142,7 +143,7 @@ public class StatNotificationActivity extends AppCompatActivity {
                         switch (item.getItemId()) {
                             case R.id.pop_edit:
                                 /* 编辑设置 */
-                                Intent intent = new Intent(StatNotificationActivity.this, AddNoitificationActivity.class);
+                                Intent intent = new Intent(StatNotificationActivity.this, AddNotificationActivity.class);
                                 intent.putExtra("raw_id", (int)list.get(position).get("raw_id"));
                                 startActivityForResult(intent, 99);
                                 break;
@@ -150,6 +151,7 @@ public class StatNotificationActivity extends AppCompatActivity {
                                 /* 删除记录 */
                                 db.delete("notify_list", "raw_id=?", new String[]{String.valueOf(list.get(position).get("raw_id"))});
                                 Log.i("test", String.valueOf(db.query("notify_list", null, "raw_id=?", new String[]{String.valueOf(list.get(position).get("raw_id"))}, null).getCount()));
+
                                 show();
                                 break;
                         }

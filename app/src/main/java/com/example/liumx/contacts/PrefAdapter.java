@@ -1,5 +1,6 @@
 package com.example.liumx.contacts;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -18,8 +19,16 @@ import android.widget.TextView;
 
 import org.w3c.dom.Text;
 
+import java.lang.reflect.Array;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.Map;
+import java.util.Random;
 
 /**
  * Created by Euqorab on 2019/6/26.
@@ -28,6 +37,7 @@ import java.util.Map;
 public class PrefAdapter extends SimpleAdapter {
     private Context mContext;
     private ContactDb db;
+    private ContentResolver resolver;
     private ArrayList<Map<String, Object>> data;
     private int resource;
     private String[] from;
@@ -53,6 +63,7 @@ public class PrefAdapter extends SimpleAdapter {
         this.from = from;
         this.to = to;
         db = new ContactDb(mContext);
+        resolver = mContext.getContentResolver();
         Cursor cursor = db.query("pref", null, "setting_item IN (?,?)",
                 new String[]{"do_not_disturb", "set_time"}, null);
         //Log.i("=============", cursor.getCount() + "");
@@ -126,7 +137,96 @@ public class PrefAdapter extends SimpleAdapter {
             }
         }
 
-        else if (position == 2 || position == 3) {
+        else if (position == 2) {
+            viewHolder.aSwitch.setVisibility(View.VISIBLE);
+            final Cursor cursor = db.query("pref", null, "setting_item=?",
+                    new String[]{"birthday_notification"}, null);
+            if (cursor.moveToNext())
+                viewHolder.aSwitch.setChecked(cursor.getString(1).equals("true"));
+
+            viewHolder.aSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    ContentValues cv = new ContentValues();
+                    cv.put("data", isChecked ? "true" : "false");
+                    db.update("pref", cv, "setting_item=?",
+                            new String[]{String.valueOf(data.get(position).get("switch"))});
+
+                    if (isChecked) {
+                        ArrayList<ContactRec> contacts = getContactsWithBirthday();
+                        int count = 0;
+                        for (int i = 0; i < contacts.size(); i++) {
+                            if (!contacts.get(i).getBirthday().equals("")) {
+                                count++;
+                                // Todo Add Notifications
+                                Random ra = new Random();
+                                int raw_id = ra.nextInt(9999999) + 1; // 这里要更改一下，不能使用currentTimeMills作为raw_id
+                                Log.i("====Write_time====", contacts.get(i).getBirthday());
+                                String notify_date = getBirthday2(contacts.get(i).getBirthday()) + "8时0分";
+//                                String notify_date = "2019年7月2日22时0分";
+
+                                Date date = null;
+                                try {
+                                    SimpleDateFormat formatter = new SimpleDateFormat("yyyy年MM月dd日HH时mm分");
+                                    date = formatter.parse(notify_date);
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+//                                Log.i("=======date=========:", String.valueOf(date));
+                                cv = new ContentValues();
+                                cv.put("note", "生日提醒");
+                                cv.put("name", contacts.get(i).getName());
+                                cv.put("phone", contacts.get(i).getPhone());
+                                cv.put("date_time", notify_date);
+                                cv.put("raw_id", raw_id); // 待定
+                                db.insert("notify_list", cv);
+                                Intent intent = new Intent (mContext, PushNotification.class);
+                                intent.putExtra("delayTime", (int)(date.getTime() - System.currentTimeMillis()));
+                                intent.putExtra("contentTitle", "通话提醒");
+                                intent.putExtra("phone", contacts.get(i).getPhone());
+                                intent.putExtra("subTitle", contacts.get(i).getName());
+                                intent.putExtra("contentText", "生日提醒");
+                                intent.putExtra("notificationId", raw_id);
+                                mContext.startService(intent);
+                            }
+                        }
+                        Log.e("birthday count++++++", count + "");
+                    }
+                    else {
+                        db.delete("notify_list", "note=?", new String[]{"生日提醒"});
+                        // Todo Delete Notifications
+
+                        // delete service
+                        Intent intent_finish = new Intent (mContext, PushNotification.class);
+                        mContext.stopService(intent_finish);
+
+                        // 数据库查询
+                        Cursor cursor = db.query("notify_list", null, null, null, null);
+                        while (cursor.moveToNext()) {
+                            Intent intent = new Intent (mContext, PushNotification.class);
+                            String notify_date = cursor.getString(cursor.getColumnIndex("date_time"));
+                            Date date = null;
+                            Log.i("=======printtt:", notify_date);
+                            try {
+                                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy年MM月dd日HH时mm分");
+                                date = simpleDateFormat.parse(notify_date);
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                            intent.putExtra("delayTime", (int)(date.getTime() - System.currentTimeMillis()));
+                            intent.putExtra("contentTitle", "通话提醒");
+                            intent.putExtra("phone", cursor.getString(cursor.getColumnIndex("phone")));
+                            intent.putExtra("subTitle", cursor.getString(cursor.getColumnIndex("name")));
+                            intent.putExtra("contentText", cursor.getString(cursor.getColumnIndex("note")));
+                            intent.putExtra("notificationId", cursor.getInt(cursor.getColumnIndex("raw_id")));
+                            mContext.startService(intent);
+                        }
+                    }
+                }
+            });
+        }
+
+        else if (position == 4 || position == 5) {
             viewHolder.aSwitch.setVisibility(View.VISIBLE);
 
             if (data.get(position).get("switch") == "set_time") {
@@ -167,7 +267,7 @@ public class PrefAdapter extends SimpleAdapter {
             });
         }
 
-        else if (position == 4 || position == 5) {
+        else if (position == 6 || position == 7) {
             viewHolder.title.setTextColor(isEnabled(position) ?
                     convertView.getResources().getColor(R.color.colorText) :
                     convertView.getResources().getColor(R.color.gray));
@@ -199,6 +299,99 @@ public class PrefAdapter extends SimpleAdapter {
         }
 
         return convertView;
+    }
+    public String getBirthday2(String bornDate) {
+        String newDate = "";
+        SimpleDateFormat sf1 = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat sf2 = new SimpleDateFormat("yyyy年MM月dd日");
+        Calendar cal = Calendar.getInstance();
+        int yearNow = cal.get(Calendar.YEAR);
+        Log.i("Before: ", bornDate);
+        try {
+            newDate = sf2.format(sf1.parse(bornDate));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        String nowStr = String.valueOf(yearNow) + newDate.substring(4);
+        String nextStr = String.valueOf(yearNow + 1) + newDate.substring(4);
+        Log.i("Error: ", nowStr);
+
+        Date nowDate = null;
+        try {
+            nowDate = sf2.parse(nowStr);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (nowDate.getTime() <= System.currentTimeMillis()) return nextStr;
+        else return nowStr;
+    }
+
+
+    public ArrayList<ContactRec> getContactsWithBirthday() {
+        ArrayList<ContactRec> newContacts = new ArrayList<>();
+
+        Uri uri = Uri.parse("content://com.android.contacts/contacts");
+        Cursor cursor = resolver.query(uri, new String[]{"name_raw_contact_id"}, null, null, "name_raw_contact_id");
+        uri = Uri.parse("content://com.android.contacts/data");
+        Cursor cursor1 = resolver.query(uri, new String[]{"raw_contact_id", "mimetype", "data1", "data2"}, null, null, "raw_contact_id");
+
+        if (cursor1.getCount() > 0)
+            cursor1.moveToNext();
+
+        while (cursor.moveToNext()) {
+            ContactRec contact = new ContactRec();
+            //获得id并且在data中寻找数据
+            int id = cursor.getInt(0);
+            contact.setId(id);
+            //Log.i("id", id + " ");
+
+            if (cursor1.getString(1).equals("vnd.android.cursor.item/name")) {
+                contact.setName(cursor1.getString(2));
+            }
+            if (cursor1.getString(1).equals("vnd.android.cursor.item/phone_v2")) {
+                contact.setPhone(cursor1.getString(2));
+            }
+            if (cursor1.getString(1).equals("vnd.android.cursor.item/contact_event") &&
+                    cursor1.getString(3).equals("3")) {
+                contact.setBirthday(cursor1.getString(2));
+            }
+
+            while (cursor1.moveToNext() && cursor1.getInt(0) == id) {
+//                Log.e("======", cursor1.getString(0));
+                if (cursor1.getString(1).equals("vnd.android.cursor.item/name")) {
+                    contact.setName(cursor1.getString(2));
+                }
+                if (cursor1.getString(1).equals("vnd.android.cursor.item/phone_v2")) {
+                    contact.setPhone(cursor1.getString(2));
+                }
+                if (cursor1.getString(1).equals("vnd.android.cursor.item/contact_event") &&
+                        cursor1.getString(3).equals("3")) {
+                    contact.setBirthday(cursor1.getString(2));
+                }
+            }
+
+            if(!contact.getName().isEmpty() && !contact.getBirthday().equals("")){
+                newContacts.add(contact);
+            }
+        }
+        cursor.close();
+
+        // 按字典序或拼音字典序排序
+        Comparator<ContactRec> comparator = new Comparator<ContactRec>() {
+            public int compare(ContactRec o1, ContactRec o2) {
+                PinyinUtils pinyinUtils = new PinyinUtils();
+                String s1, s2;
+                s1 = pinyinUtils.isChinese(o1.getName()) ?
+                        pinyinUtils.getSelling(o1.getName()) : o1.getName();
+                s2 = pinyinUtils.isChinese(o2.getName()) ?
+                        pinyinUtils.getSelling(o2.getName()) : o2.getName();
+                return s1.compareToIgnoreCase(s2);
+            }
+        };
+        Collections.sort(newContacts, comparator);
+        return newContacts;
     }
 }
 

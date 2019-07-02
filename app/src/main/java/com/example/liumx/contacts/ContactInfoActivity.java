@@ -174,16 +174,19 @@ public class ContactInfoActivity extends AppCompatActivity {
                 break;
 
             case R.id.notify:
-                Intent intent1 = new Intent(ContactInfoActivity.this, AddNoitificationActivity.class);
+                Intent intent1 = new Intent(ContactInfoActivity.this, AddNotificationActivity.class);
                 String raw_id = String.valueOf(db.getCount("notify_list"));
                 intent1.putExtra("raw_id", raw_id);
-                intent1.putExtra("phone", contact.getPhone());
-                if (contact.getBirthday().equals("") || contact.getBirthday().isEmpty())
-                    intent1.putExtra("date_time", "");
-                else
-                    intent1.putExtra("date_time", getBirthday(contact.getBirthday()));
                 intent1.putExtra("name", contact.getName());
-                intent1.putExtra("note", "生日");
+                intent1.putExtra("phone", contact.getPhone());
+                if (contact.getBirthday().equals("") || contact.getBirthday().isEmpty()) {
+                    intent1.putExtra("date_time", "");
+                    intent1.putExtra("note", "");
+                }
+                else {
+                    intent1.putExtra("date_time", getBirthday(contact.getBirthday()));
+                    intent1.putExtra("note", "生日");
+                }
 
                 Log.i("test: ", String.valueOf(intent1.getStringExtra("raw_id")));
                 startActivity(intent1);
@@ -285,13 +288,10 @@ public class ContactInfoActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 344) {
+        if (requestCode == 344 && resultCode == 445) {
             contactChanged = true;
-
-            if (resultCode != 65535)
-                _id = String.valueOf(resultCode);
-
             contact = getContact();
+
             String name = contact.getName() != "" ? contact.getName() : "未备注联系人";
             if (contact.getOrganization() != "") {
                 title1.setText(name);
@@ -360,6 +360,15 @@ public class ContactInfoActivity extends AppCompatActivity {
         ContactRec newContact = new ContactRec();
         if (intent.getStringExtra("phone")!= null) {
             String phone = intent.getStringExtra("phone");
+            Uri uri = Uri.parse("content://com.android.contacts/data");
+            Cursor cursor = resolver.query(uri, new String[]{"raw_contact_id"},
+                    "mimetype=? and data1=?", new String[]{"vnd.android.cursor.item/phone_v2", phone}, null);
+
+            if (cursor.moveToNext()) {
+                _id = cursor.getString(0);
+                return getContact();
+            }
+
             newContact.setPhone(phone);
             newContact.setAttribution();
             CallInfoLog callInfoLog = new CallInfoLog(resolver);
@@ -389,18 +398,19 @@ public class ContactInfoActivity extends AppCompatActivity {
                     newContact.setPhone(data);
                     newContact.setAttribution();
                 }
-                else if (mimetype.equals("vnd.android.cursor.item/email_v2")) {
+                else if (!data.equals("") && mimetype.equals("vnd.android.cursor.item/email_v2")) {
                     newContact.setEmail(data);
                 }
-                else if (mimetype.equals("vnd.android.cursor.item/organization")) {
+                else if (!data.equals("") && mimetype.equals("vnd.android.cursor.item/organization")) {
                     newContact.setOrganization(data);
                 }
-                else if (mimetype.equals("vnd.android.cursor.item/postal-address_v2")) {
+                else if (!data.equals("") && mimetype.equals("vnd.android.cursor.item/postal-address_v2")) {
                     newContact.setAddress(data);
                 }
-                else if (mimetype.equals("vnd.android.cursor.item/contact_event") &&
+                else if (!data.equals("") && mimetype.equals("vnd.android.cursor.item/contact_event") &&
                         cursor1.getString(1).equals("3")) {
                     String birth = "";
+                    Log.e("birthday========", data + "=====");
                     SimpleDateFormat sf1 = new SimpleDateFormat("yyyy年MM月dd日");
                     SimpleDateFormat sf2 = new SimpleDateFormat("yyyy-MM-dd");
                     try {
@@ -558,6 +568,7 @@ public class ContactInfoActivity extends AppCompatActivity {
                                         catch (Exception e) {
                                             e.printStackTrace();
                                         }
+                                        contactChanged = true;
                                         dialogHandler.getDialog().dismiss();
                                     }
                                 });

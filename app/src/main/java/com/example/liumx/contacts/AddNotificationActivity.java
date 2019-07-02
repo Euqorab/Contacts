@@ -37,7 +37,7 @@ import static java.lang.Math.pow;
  * Created by 64849 on 2019/6/24.
  */
 
-public class AddNoitificationActivity extends AppCompatActivity {
+public class AddNotificationActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private ContentResolver resolver;
     private EditText editNameNofity;
@@ -86,9 +86,10 @@ public class AddNoitificationActivity extends AppCompatActivity {
                 if (getIntent().getStringExtra("name") != null)
                     editNameNofity.setText(getIntent().getStringExtra("name"));
                 editPhoneNotify.setText(getIntent().getStringExtra("phone"));
-                editNoteNotify.setText(getIntent().getStringExtra("note"));
-                if (getIntent().getStringExtra("date_time") != null)
-                    timeToNotify.setText(getIntent().getStringExtra("date_time") + "8时0分");
+//                editNoteNotify.setText(getIntent().getStringExtra("note"));
+//                if (!getIntent().getStringExtra("date_time").isEmpty() &&
+//                        !getIntent().getStringExtra("date_time").equals(""))
+//                    timeToNotify.setText(getIntent().getStringExtra("date_time") + "8时0分");
             }
         }
 
@@ -96,8 +97,6 @@ public class AddNoitificationActivity extends AppCompatActivity {
         timeToNotify.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
-                // TODO Auto-generated method stub
-                // 设置默认日期为现在的日期
                 year = Calendar.getInstance().get(Calendar.YEAR);
                 month = Calendar.getInstance().get( Calendar.MONTH);
                 day = Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
@@ -187,7 +186,9 @@ public class AddNoitificationActivity extends AppCompatActivity {
                 intent.putExtra("contentTitle", "通话提醒");
                 intent.putExtra("phone", editPhoneNotify.getText().toString());
                 intent.putExtra("subTitle", editNameNofity.getText().toString());
+                // Todo
                 intent.putExtra("contentText", editNoteNotify.getText().toString());
+
                 intent.putExtra("notificationId", notificaitionId);
                 startService(intent);
 

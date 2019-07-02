@@ -168,8 +168,9 @@ public class MainActivity extends AppCompatActivity {
     void initPref() {
         if (db.query("pref", null, null, null, null).getCount() == 0) {
             Log.e("test", "insert");
-            String[] setting_items = {"days_of_call_log", "do_not_disturb", "set_time", "start_time", "end_time"};
-            String[] data = {"-1", "false", "false", "22:00", "07:00"};
+            String[] setting_items = {"days_of_call_log", "birthday_notification",
+                    "do_not_disturb", "set_time", "start_time", "end_time"};
+            String[] data = {"-1", "false", "false", "false", "22:00", "07:00"};
             for (int i = 0; i < setting_items.length; i++) {
                 ContentValues cv = new ContentValues();
                 cv.put("setting_item", setting_items[i]);
@@ -305,7 +306,7 @@ public class MainActivity extends AppCompatActivity {
         Uri uri = Uri.parse("content://com.android.contacts/contacts");
         Cursor cursor = resolver.query(uri, new String[]{"name_raw_contact_id"}, null, null, "name_raw_contact_id");
         uri = Uri.parse("content://com.android.contacts/data");
-        Cursor cursor1 = resolver.query(uri, new String[]{"raw_contact_id", "mimetype", "data1"}, null, null, "raw_contact_id");
+        Cursor cursor1 = resolver.query(uri, new String[]{"raw_contact_id", "mimetype", "data1", "data2"}, null, null, "raw_contact_id");
 
         if (cursor1.getCount() > 0)
             cursor1.moveToNext();
@@ -323,6 +324,10 @@ public class MainActivity extends AppCompatActivity {
             if (cursor1.getString(1).equals("vnd.android.cursor.item/phone_v2")) {
                 contact.setPhone(cursor1.getString(2));
             }
+            if (cursor1.getString(1).equals("vnd.android.cursor.item/contact_event") &&
+                    cursor1.getString(3).equals("3")) {
+                contact.setBirthday(cursor1.getString(2));
+            }
 
             while (cursor1.moveToNext() && cursor1.getInt(0) == id) {
 //                Log.e("======", cursor1.getString(0));
@@ -331,6 +336,10 @@ public class MainActivity extends AppCompatActivity {
                 }
                 if (cursor1.getString(1).equals("vnd.android.cursor.item/phone_v2")) {
                     contact.setPhone(cursor1.getString(2));
+                }
+                if (cursor1.getString(1).equals("vnd.android.cursor.item/contact_event") &&
+                        cursor1.getString(3).equals("3")) {
+                    contact.setBirthday(cursor1.getString(2));
                 }
             }
 

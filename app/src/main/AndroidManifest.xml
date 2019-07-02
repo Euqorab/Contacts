@@ -52,7 +52,7 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".AddNoitificationActivity">
+        <activity android:name=".AddNotificationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.Notification" />
                 <category android:name="android.intent.category.LAUNCHER4" />

@@ -59,6 +59,8 @@ public class PrefActivity extends AppCompatActivity {
         list = new ArrayList<>();
         list.add(buildItem("通话统计展示时段", "", "", "", "全部"));
         list.add(buildItem("", "", "", "", ""));
+        list.add(buildItem("添加生日提醒", "联系人生日当天8：00会收到提醒通知", "birthday_notification", "", ""));
+        list.add(buildItem("", "", "", "", ""));
         list.add(buildItem("开启免打扰", "拦截非白名单内的来电", "do_not_disturb", "", ""));
         list.add(buildItem("设定拦截时间", "", "set_time", "", ""));
         list.add(buildItem("开始时间", "", "", "start_time", "10:00"));
