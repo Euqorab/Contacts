@@ -3,6 +3,7 @@ package com.example.liumx.contacts;
 import android.util.Log;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 
 /**
  * Created by Euqorab on 2019/6/22.
@@ -145,5 +146,29 @@ public class PinyinUtils {
         else {
             return '#';
         }
+    }
+
+    public ArrayList<String> getFormatSpelling(String chs) {
+        ArrayList<String> list = new ArrayList<>();
+        for (int i = 0; i < chs.length(); i++) {
+            String ch = String.valueOf(chs.charAt(i)).toLowerCase();
+            if (isChinese(ch))
+                list.add(getSelling(ch));
+            else if (i > 0 && ch.equals(" ")) {
+                String word = list.get(list.size() - 1) + ch;
+                list.set(list.size() - 1, word);
+            }
+            else if (i > 0 && (isChinese(String.valueOf(chs.charAt(i-1)))
+                    || chs.charAt(i-1) == ' '))
+                list.add(ch);
+            else if (i == 0 && !isChinese(ch)) {
+                list.add(ch);
+            }
+            else {
+                String word = list.get(list.size() - 1) + ch;
+                list.set(list.size() - 1, word);
+            }
+        }
+        return list;
     }
 }

@@ -50,7 +50,7 @@ public class AddContactActivity extends AppCompatActivity {
     private DialogHandler dialogHandler;
     private int year = 0, month = 0, day = 0;
     private boolean myCard = false;
-    private String CONTACT = "1", MY_CARD = "2";
+    private String CONTACT = "1", MY_CARD = "2", EDIT = "3";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,10 +65,12 @@ public class AddContactActivity extends AppCompatActivity {
         Intent intent = getIntent();
         if (intent.getStringExtra("flag") != null && intent.getStringExtra("flag").equals(MY_CARD))
             actionBar.setTitle("编辑名片");
+        else if (intent.getStringExtra("flag") != null && intent.getStringExtra("flag").equals(CONTACT))
+            actionBar.setTitle("编辑联系人");
         else
             actionBar.setTitle("新联系人");
 
-        Uri uri = Uri.parse("content://com.android.contacts/contacts");
+//        Uri uri = Uri.parse("content://com.android.contacts/contacts");
         resolver = this.getContentResolver();
         db = new ContactDb(this);
         dialogHandler = new DialogHandler(this);

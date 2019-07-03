@@ -162,12 +162,12 @@ public class PrefAdapter extends SimpleAdapter {
                                 Random ra = new Random();
                                 int raw_id = ra.nextInt(9999999) + 1; // 这里要更改一下，不能使用currentTimeMills作为raw_id
                                 Log.i("====Write_time====", contacts.get(i).getBirthday());
-                                String notify_date = getBirthday2(contacts.get(i).getBirthday()) + "8时0分";
+                                String notify_date = getBirthday2(contacts.get(i).getBirthday()) + " 8:00";
 //                                String notify_date = "2019年7月2日22时0分";
 
                                 Date date = null;
                                 try {
-                                    SimpleDateFormat formatter = new SimpleDateFormat("yyyy年MM月dd日HH时mm分");
+                                    SimpleDateFormat formatter = new SimpleDateFormat("yyyy年MM月dd日 HH:mm");
                                     date = formatter.parse(notify_date);
                                 } catch (ParseException e) {
                                     e.printStackTrace();

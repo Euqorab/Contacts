@@ -3,6 +3,7 @@ package com.example.liumx.contacts;
 import android.os.SystemClock;
 import android.util.Log;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
@@ -25,6 +26,7 @@ public class ContactRec {
     private String birthday = "";
     private String attribution = "";
     private ArrayList<Map<String, String>> callLog = null;
+    private ArrayList<String> spelling = null;
 
     ContactRec() {}
 
@@ -109,6 +111,10 @@ public class ContactRec {
         }
     }
 
+    public ArrayList<String> getSpelling() {
+        return spelling;
+    }
+
     public void setPhone(String s) {
         phone = "";
         for (int i = 0; i < s.length(); i++) {
@@ -160,4 +166,10 @@ public class ContactRec {
         callLog = l;
     }
 
+    public void setSpelling() {
+        if (!getName().equals("")) {
+            PinyinUtils pinyinUtils = new PinyinUtils();
+            spelling = pinyinUtils.getFormatSpelling(getName());
+        }
+    }
 }

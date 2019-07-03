@@ -129,9 +129,10 @@ public class MyCard extends AppCompatActivity {
                 subtitle.setTextSize(24);
                 subtitle.setText(name);
             }
-            cardPhone.setEnabled(phone.equals(""));
+//            cardPhone.setEnabled(phone.equals(""));
+            Log.i(phone, email);
             cardPhone.setText(phone);
-            cardEmail.setEnabled(email.equals(""));
+//            cardEmail.setEnabled(email.equals(""));
             cardEmail.setText(email);
 
             String count = "name=" + name + "\nphone=" + phone + "\nemail=" + email

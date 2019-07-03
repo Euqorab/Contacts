@@ -11,12 +11,12 @@
         android:title="通话统计"
         app:showAsAction="never" />
     <item android:id="@+id/notify"
-        android:title="添加提醒"
-        app:showAsAction="never" />
-    <item android:id="@+id/pref"
-        android:title="设置"
+        android:title="通话提醒"
         app:showAsAction="never" />
     <item android:id="@+id/scan"
         android:title="扫一扫"
+        app:showAsAction="never" />
+    <item android:id="@+id/pref"
+        android:title="设置"
         app:showAsAction="never" />
 </menu>

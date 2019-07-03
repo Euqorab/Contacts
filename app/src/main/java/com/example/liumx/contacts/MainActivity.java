@@ -308,34 +308,30 @@ public class MainActivity extends AppCompatActivity {
         uri = Uri.parse("content://com.android.contacts/data");
         Cursor cursor1 = resolver.query(uri, new String[]{"raw_contact_id", "mimetype", "data1", "data2"}, null, null, "raw_contact_id");
 
+
         if (cursor1.getCount() > 0)
             cursor1.moveToNext();
+        Log.i("++++++", cursor1.getString(0) + " " + cursor1.getString(2));
 
         while (cursor.moveToNext()) {
             ContactRec contact = new ContactRec();
             //获得id并且在data中寻找数据
             int id = cursor.getInt(0);
             contact.setId(id);
-            //Log.i("id", id + " ");
+            Log.i("id", id + " ");
+//            Log.i("___id", cursor1.getString(0));
 
-            if (cursor1.getString(1).equals("vnd.android.cursor.item/name")) {
-                contact.setName(cursor1.getString(2));
-            }
-            if (cursor1.getString(1).equals("vnd.android.cursor.item/phone_v2")) {
-                contact.setPhone(cursor1.getString(2));
-            }
-            if (cursor1.getString(1).equals("vnd.android.cursor.item/contact_event") &&
-                    cursor1.getString(3).equals("3")) {
-                contact.setBirthday(cursor1.getString(2));
-            }
-
-            while (cursor1.moveToNext() && cursor1.getInt(0) == id) {
-//                Log.e("======", cursor1.getString(0));
+            if (!cursor1.isLast() && cursor1.getInt(0) == id) {
                 if (cursor1.getString(1).equals("vnd.android.cursor.item/name")) {
+                    Log.e("======", cursor1.getString(0) + cursor1.getString(2));
                     contact.setName(cursor1.getString(2));
+                    contact.setSpelling();
                 }
                 if (cursor1.getString(1).equals("vnd.android.cursor.item/phone_v2")) {
                     contact.setPhone(cursor1.getString(2));
+                }
+                if (cursor1.getString(1).equals("vnd.android.cursor.item/organization")) {
+                    contact.setOrganization(cursor1.getString(2));
                 }
                 if (cursor1.getString(1).equals("vnd.android.cursor.item/contact_event") &&
                         cursor1.getString(3).equals("3")) {
@@ -343,7 +339,30 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
+            while (!cursor1.isLast()) {
+                Log.i("++++++", cursor1.getString(0) + " " + cursor1.getString(2));
+                if (cursor1.getInt(0) == id) {
+                    if (cursor1.getString(1).equals("vnd.android.cursor.item/name")) {
+                        contact.setName(cursor1.getString(2));
+                    }
+                    if (cursor1.getString(1).equals("vnd.android.cursor.item/phone_v2")) {
+                        contact.setPhone(cursor1.getString(2));
+                    }
+                    if (cursor1.getString(1).equals("vnd.android.cursor.item/organization")) {
+                        contact.setOrganization(cursor1.getString(2));
+                    }
+                    if (cursor1.getString(1).equals("vnd.android.cursor.item/contact_event") &&
+                            cursor1.getString(3).equals("3")) {
+                        contact.setBirthday(cursor1.getString(2));
+                    }
+                    cursor1.moveToNext();
+                }
+                else
+                    break;
+            }
+
             if(!contact.getName().isEmpty()){
+                Log.i(contact.getName() + contact.getPhone(), contact.getBirthday());
                 newContacts.add(contact);
             }
         }
@@ -380,22 +399,27 @@ public class MainActivity extends AppCompatActivity {
 
             String[] tmp = {
                     contacts.get(i).getPhone(),
-                    contacts.get(i).getEmail(),
                     contacts.get(i).getOrganization(),
             };
             PinyinUtils pinyinUtils = new PinyinUtils();
-            if (pinyinUtils.isChinese(tmpName)) {
-                pyName = pinyinUtils.getSelling(tmpName);
-            }
-            Log.i(tmpName, restrict);
-            if (pyName.toLowerCase().contains(restrict.toLowerCase())
-                    || tmpName.contains(restrict)) {
+//            if (pinyinUtils.isChinese(tmpName)) {
+//                pyName = pinyinUtils.getSelling(tmpName);
+//            }
+//            Log.i(tmpName, restrict);
+
+//            ArrayList<String> list = contacts.get(i).getSpelling();
+//            for (int j = 0; j < list.size(); j++)
+//                Log.i(list.get(j), "=============");
+
+            if (cmpName(pinyinUtils.getSelling(restrict), contacts.get(i).getSpelling())) {
+//                    pyName.toLowerCase().contains(restrict.toLowerCase())
+//                    || tmpName.contains(restrict)) {
                 newContacts.add(new Pair<>(contacts.get(i), ""));
                 continue;
             }
             boolean flag = true;
             for (int j = 0; j < tmp.length; j++) {
-                Log.e("j", j + tmp[j]);
+                Log.e("j", j + " " + tmp[j]);
                 if ((tmp[j].toLowerCase().contains(restrict.toLowerCase()) ||
                         tmp[j].contains(restrict)) && flag) {
                     Log.e("true", "-=-=--=-=-=-=-");
@@ -405,6 +429,25 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         return newContacts;
+    }
+
+    public boolean cmpName(String restrict, ArrayList<String> formatName) {
+        int i = 0, j = 0, k = 0;
+        while (true) {
+            if (i == restrict.length())
+                return true;
+            if (j == formatName.size())
+                break;
+            if (k == formatName.get(j).length()
+                    || restrict.charAt(i) != formatName.get(j).charAt(k)) {
+                j++;
+                k = 0;
+                continue;
+            }
+            i++;
+            k++;
+        }
+        return false;
     }
 
     public void showContactList(final ArrayList<ContactRec> sContacts){

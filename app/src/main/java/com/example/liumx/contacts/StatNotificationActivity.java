@@ -98,8 +98,8 @@ public class StatNotificationActivity extends AppCompatActivity {
             String phone = cursor.getString(cursor.getColumnIndex("phone"));
             String  raw_id = cursor.getString(cursor.getColumnIndex("raw_id"));
             String note = null;
-            if (name.length() > 0) note = "打电话给" + name;
-            else note = "打电话给" + phone;
+            if (name.length() > 0) note = "打电话给" + name + " " + cursor.getString(cursor.getColumnIndex("note"));
+            else note = "打电话给" + phone + " " + cursor.getString(cursor.getColumnIndex("note"));
 
             Map<String, Object> map = new HashMap<String, Object>();
             map.put("date_time",date);
@@ -108,7 +108,7 @@ public class StatNotificationActivity extends AppCompatActivity {
             Date dateTime = null;
             Log.i("======Str_time===", date);
             try {
-                SimpleDateFormat formatter = new SimpleDateFormat("yyyy年MM月dd日HH时mm分");
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy年MM月dd日 HH:mm");
                 dateTime = formatter.parse(date);
             } catch (ParseException e) {
                 e.printStackTrace();
@@ -141,18 +141,24 @@ public class StatNotificationActivity extends AppCompatActivity {
                     public boolean onMenuItemClick(MenuItem item) {
                         DialogHandler dialogHandler = new DialogHandler(StatNotificationActivity.this);
                         switch (item.getItemId()) {
-                            case R.id.pop_edit:
-                                /* 编辑设置 */
-                                Intent intent = new Intent(StatNotificationActivity.this, AddNotificationActivity.class);
-                                intent.putExtra("raw_id", (int)list.get(position).get("raw_id"));
-                                startActivityForResult(intent, 99);
-                                break;
+//                            case R.id.pop_edit:
+//                                /* 编辑设置 */
+//                                Intent intent = new Intent(StatNotificationActivity.this, AddNotificationActivity.class);
+//                                intent.putExtra("raw_id", (int)list.get(position).get("raw_id"));
+//                                startActivityForResult(intent, 99);
+//                                break;
                             case R.id.pop_del:
                                 /* 删除记录 */
-                                db.delete("notify_list", "raw_id=?", new String[]{String.valueOf(list.get(position).get("raw_id"))});
-                                Log.i("test", String.valueOf(db.query("notify_list", null, "raw_id=?", new String[]{String.valueOf(list.get(position).get("raw_id"))}, null).getCount()));
-
-                                show();
+                                View root = getLayoutInflater().inflate(R.layout.dialog_bottom, null);
+                                dialogHandler.showBottomWindow(root, "是否删除此提醒？", "此提醒事项将从本机删除。是否删除？",
+                                        "我已阅读并了解", new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                db.delete("notify_list", "raw_id=?", new String[]{String.valueOf(list.get(position).get("raw_id"))});
+//                                                Log.i("test", String.valueOf(db.query("notify_list", null, "raw_id=?", new String[]{String.valueOf(list.get(position).get("raw_id"))}, null).getCount()));
+                                                show();
+                                            }
+                                        });
                                 break;
                         }
                         return true;

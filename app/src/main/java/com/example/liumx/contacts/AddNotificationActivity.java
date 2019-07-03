@@ -130,8 +130,8 @@ public class AddNotificationActivity extends AppCompatActivity {
                                         new View.OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
-                                                timeToNotify.setText(year + "年" + (month+1) + "月" + day + "日" +
-                                                        hour + "时" + minute + "分");
+                                                timeToNotify.setText(year + "年" + (month+1) + "月" + day + "日 " +
+                                                        hour + ":" + minute);
                                                 dialogHandler.getDialog().dismiss();
                                             }
                                         }
@@ -169,7 +169,7 @@ public class AddNotificationActivity extends AppCompatActivity {
                 Date date = null;
                 Log.i("date: ", strTime + "====");
                 try {
-                    SimpleDateFormat formatter = new SimpleDateFormat("yyyy年MM月dd日HH时mm分");
+                    SimpleDateFormat formatter = new SimpleDateFormat("yyyy年MM月dd日 HH:mm");
                     date = formatter.parse(strTime);
                 } catch (ParseException e) {
                     e.printStackTrace();
